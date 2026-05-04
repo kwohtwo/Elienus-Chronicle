@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SiX, SiTelegram } from "react-icons/si";
 import elienusFace from "@assets/elienus-face.jpg";
@@ -7,8 +7,10 @@ import elienusFull from "@assets/elienus-full.jpg";
 import elienusAlt from "@assets/elienus-alt.jpg";
 
 const CA = "5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t";
+const BUY_URL = "https://pump.fun/coin/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t";
+const DEX_URL = "https://dexscreener.com/solana/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t";
 
-function CopyCA() {
+function CopyCA({ size = "normal" }: { size?: "normal" | "large" }) {
   const [copied, setCopied] = useState(false);
   const copy = () => {
     navigator.clipboard.writeText(CA);
@@ -16,770 +18,628 @@ function CopyCA() {
     setTimeout(() => setCopied(false), 2000);
   };
   return (
-    <button
-      onClick={copy}
-      data-testid="button-copy-ca"
-      className="group flex items-center gap-3 border border-[rgba(0,255,65,0.3)] bg-black/60 px-4 py-3 hover:bg-[rgba(0,255,65,0.08)] transition-all duration-300 w-full max-w-xl"
-    >
-      <span className="font-mono-alien text-xs text-[#00ff41]/60 shrink-0">CA:</span>
-      <span className="font-mono-alien text-xs text-[#00ff41] break-all text-left flex-1">{CA}</span>
-      <span className="font-alien text-xs shrink-0 text-[#00ff41]/70 group-hover:text-[#00ff41] transition-colors">
+    <button onClick={copy} data-testid="button-copy-ca"
+      className={`group flex items-center gap-2 border border-[rgba(0,255,65,0.35)] bg-black/70 hover:bg-[rgba(0,255,65,0.1)] transition-all duration-200 w-full ${size === "large" ? "px-5 py-4" : "px-4 py-3"}`}>
+      <span className="font-mono-alien text-[10px] text-[#00ff41]/50 shrink-0">CA</span>
+      <span className={`font-mono-alien text-[#00ff41] break-all text-left flex-1 ${size === "large" ? "text-xs" : "text-[10px]"}`}>{CA}</span>
+      <span className={`font-alien text-[10px] shrink-0 px-2 py-1 border transition-all duration-200 ${copied ? "border-[#00ff41] text-[#00ff41] bg-[rgba(0,255,65,0.15)]" : "border-[rgba(0,255,65,0.3)] text-[#00ff41]/60 group-hover:text-[#00ff41] group-hover:border-[#00ff41]"}`}>
         {copied ? "COPIED ✓" : "COPY"}
       </span>
     </button>
   );
 }
 
-function StarField({ count = 60 }: { count?: number }) {
+function Stars() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute rounded-full"
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {Array.from({ length: 60 }).map((_, i) => (
+        <div key={i} className="absolute rounded-full"
           style={{
-            left: `${(i * 137.5) % 100}%`,
-            top: `${(i * 97.3) % 100}%`,
-            width: `${i % 8 === 0 ? 2 : 1}px`,
-            height: `${i % 8 === 0 ? 2 : 1}px`,
-            backgroundColor: i % 3 === 0 ? "rgba(0,255,65,0.9)" : "rgba(255,255,255,0.6)",
-            animation: `twinkle ${2.5 + (i % 5)}s ${(i % 7) * 0.7}s ease-in-out infinite`,
-          }}
-        />
+            left: `${(i * 137.5) % 100}%`, top: `${(i * 97.3) % 100}%`,
+            width: `${i % 9 === 0 ? 2 : 1}px`, height: `${i % 9 === 0 ? 2 : 1}px`,
+            backgroundColor: i % 3 === 0 ? "rgba(0,255,65,0.9)" : "rgba(255,255,255,0.5)",
+            animation: `twinkle ${2.5 + (i % 5) * 0.6}s ${(i % 7) * 0.5}s ease-in-out infinite`,
+          }} />
       ))}
     </div>
   );
 }
 
+const TABS = [
+  { id: "story", label: "STORY" },
+  { id: "quotes", label: "THE PROOF" },
+  { id: "companies", label: "HIS EMPIRE" },
+  { id: "tokenomics", label: "TOKENOMICS" },
+  { id: "buy", label: "WHERE TO BUY" },
+  { id: "socials", label: "SOCIALS" },
+];
+
+function scrollTo(id: string) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
-const fadeLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: "easeOut" } },
-};
-const fadeRight = {
-  hidden: { opacity: 0, x: 60 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: "easeOut" } },
-};
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.15 } },
-};
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
 
 export default function Home() {
-  return (
-    <div className="bg-[#060606] text-white overflow-hidden font-body">
+  const [activeTab, setActiveTab] = useState("story");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-      {/* ═══ NAV ═══ */}
-      <nav className="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 border-b border-[rgba(0,255,65,0.12)] bg-[rgba(6,6,6,0.88)] backdrop-blur-md">
-        <div className="font-alien text-xl font-bold tracking-widest text-[#00ff41]"
-          style={{ textShadow: "0 0 15px rgba(0,255,65,0.6)" }}>
-          $ELIENUS
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActiveTab(e.target.id); });
+      },
+      { threshold: 0.3, rootMargin: "-80px 0px 0px 0px" }
+    );
+    TABS.forEach(({ id }) => {
+      const el = document.getElementById(id);
+      if (el) obs.observe(el);
+    });
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div className="bg-[#060606] text-white font-body overflow-x-hidden">
+
+      {/* ══ STICKY NAV WITH TABS ══ */}
+      <nav className="fixed top-0 w-full z-50 border-b border-[rgba(0,255,65,0.15)] bg-[rgba(6,6,6,0.95)] backdrop-blur-md">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button onClick={() => scrollTo("hero")}
+            className="font-alien text-lg font-bold tracking-widest text-[#00ff41] shrink-0"
+            style={{ textShadow: "0 0 12px rgba(0,255,65,0.6)" }}>
+            $ELIENUS
+          </button>
+
+          {/* Desktop Tabs */}
+          <div className="hidden md:flex items-center gap-1">
+            {TABS.map((tab) => (
+              <button key={tab.id} onClick={() => scrollTo(tab.id)}
+                className={`font-alien text-[10px] tracking-widest px-3 py-1.5 transition-all duration-200 ${activeTab === tab.id ? "text-[#00ff41] border-b-2 border-[#00ff41]" : "text-white/40 hover:text-white/70"}`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-3">
+            <a href={BUY_URL} target="_blank" rel="noreferrer"
+              className="font-alien text-xs tracking-widest bg-[#00ff41] text-black px-4 py-2 font-black hover:bg-white transition-colors"
+              data-testid="link-buy-nav">
+              BUY NOW
+            </a>
+            {/* Mobile menu toggle */}
+            <button className="md:hidden text-[#00ff41]/70 hover:text-[#00ff41]" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <div className="w-5 space-y-1">
+                <div className="h-px bg-current" /><div className="h-px bg-current" /><div className="h-px bg-current" />
+              </div>
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-5">
-          <a href="https://x.com/ElienusMuskius" target="_blank" rel="noreferrer"
-            className="text-white/50 hover:text-[#00ff41] transition-colors" data-testid="link-twitter">
-            <SiX size={19} />
-          </a>
-          <a href="https://t.me/ElienusMuskius" target="_blank" rel="noreferrer"
-            className="text-white/50 hover:text-[#00ff41] transition-colors" data-testid="link-telegram">
-            <SiTelegram size={19} />
-          </a>
-          <a href="https://dexscreener.com/solana/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-            target="_blank" rel="noreferrer"
-            className="font-alien text-xs tracking-widest text-[#00ff41]/70 hover:text-[#00ff41] border border-[rgba(0,255,65,0.28)] px-3 py-1.5 hover:border-[rgba(0,255,65,0.7)] transition-all"
-            data-testid="link-chart">
-            CHART
-          </a>
-          <a href="https://pump.fun/coin/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-            target="_blank" rel="noreferrer"
-            className="font-alien text-xs tracking-widest bg-[#00ff41] text-black px-4 py-1.5 font-bold hover:bg-white transition-colors"
-            data-testid="link-buy-nav">
-            BUY
-          </a>
-        </div>
+
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-[rgba(0,255,65,0.12)] bg-[rgba(6,6,6,0.98)] px-4 py-2 flex flex-col gap-1">
+            {TABS.map((tab) => (
+              <button key={tab.id} onClick={() => { scrollTo(tab.id); setMobileMenuOpen(false); }}
+                className="font-alien text-xs tracking-widest text-left py-2 text-white/60 hover:text-[#00ff41] transition-colors">
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
-      {/* ═══ HERO — ELIENUS IMAGE AS FULL BACKGROUND ═══ */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden pt-20">
-        <StarField count={80} />
-
-        {/* Full-bleed ELIENUS character as background */}
+      {/* ══ HERO ══ */}
+      <section id="hero" className="relative flex flex-col items-center justify-center overflow-hidden pt-16"
+        style={{ minHeight: "100svh" }}>
+        <Stars />
         <div className="absolute inset-0 z-0">
-          <img
-            src={elienusAlt}
-            alt="Elienus Muskius"
-            className="w-full h-full object-cover object-center"
-            style={{ filter: "saturate(0.6) contrast(1.1) brightness(0.55)" }}
-          />
-          {/* Layered overlays for drama */}
-          <div className="absolute inset-0"
-            style={{
-              background: "radial-gradient(ellipse 80% 80% at 50% 40%, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.7) 100%)"
-            }} />
-          <div className="absolute inset-0"
-            style={{
-              background: "linear-gradient(to bottom, rgba(6,6,6,0.6) 0%, transparent 30%, transparent 60%, rgba(6,6,6,0.95) 100%)"
-            }} />
-          <div className="absolute inset-0"
-            style={{
-              background: "radial-gradient(ellipse 120% 60% at 50% 0%, rgba(0,40,10,0.5) 0%, transparent 60%)"
-            }} />
-          {/* Scanline overlay */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,65,0.025) 3px, rgba(0,255,65,0.025) 4px)"
-            }} />
+          <img src={elienusAlt} alt="Elienus Muskius" className="w-full h-full object-cover object-center"
+            style={{ filter: "saturate(0.55) contrast(1.15) brightness(0.45)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(6,6,6,0.55) 0%, rgba(6,6,6,0.25) 40%, rgba(6,6,6,0.75) 80%, #060606 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 120% 80% at 50% 30%, rgba(0,40,10,0.4) 0%, transparent 70%)" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.022) 3px,rgba(0,255,65,0.022) 4px)" }} />
         </div>
 
-        {/* Grid overlay */}
-        <div className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: "linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px)",
-            backgroundSize: "60px 60px"
-          }} />
-
-        {/* Content */}
-        <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, letterSpacing: "0.6em" }}
-            animate={{ opacity: 1, letterSpacing: "0.35em" }}
-            transition={{ duration: 1.6 }}
-            className="font-mono-alien text-[#00ff41]/70 text-xs mb-8 uppercase tracking-[0.35em]"
-          >
-            Zeta Reticuli Intelligence — Declassified // Solana Protocol
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}
+            className="font-mono-alien text-[#00ff41]/65 text-[10px] tracking-[0.4em] mb-5 uppercase">
+            Zeta Reticuli Intelligence — Declassified
           </motion.p>
 
-          <motion.h1
-            initial={{ opacity: 0, scale: 0.88 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.3, ease: "easeOut" }}
-            className="font-cinzel font-black leading-[0.9] mb-6"
-            style={{ textShadow: "0 0 60px rgba(0,255,65,0.5), 0 0 120px rgba(0,255,65,0.2)" }}
-          >
-            <span className="block text-[#00ff41] text-6xl md:text-8xl lg:text-[9rem]">Elienus</span>
-            <span className="block text-white text-5xl md:text-7xl lg:text-8xl">Muskius</span>
+          <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1, ease: "easeOut" }}
+            className="font-cinzel font-black leading-[0.88] mb-5"
+            style={{ textShadow: "0 0 60px rgba(0,255,65,0.5), 0 0 120px rgba(0,255,65,0.2)" }}>
+            <span className="block text-[#00ff41]" style={{ fontSize: "clamp(3.5rem, 14vw, 9rem)" }}>Elienus</span>
+            <span className="block text-white" style={{ fontSize: "clamp(2.5rem, 10vw, 7rem)" }}>Muskius</span>
           </motion.h1>
 
-          {/* The real quote */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 1 }}
-            className="mb-8 max-w-2xl mx-auto border-l-2 border-[#00ff41]/60 pl-4 text-left"
-          >
-            <p className="font-body text-white/80 text-lg md:text-xl italic leading-relaxed">
-              "I'm often asked, 'Are there aliens among us?' And I'll say that I am one."
+          {/* Quote callout */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5, duration: 0.8 }}
+            className="max-w-lg mx-auto mb-6 border-l-2 border-[#00ff41]/70 pl-4 text-left">
+            <p className="font-body text-white/85 text-base md:text-lg italic leading-snug">
+              "I'm often asked, 'Are there aliens among us?'<br />
+              And I'll say that I am one."
             </p>
-            <p className="font-mono-alien text-[#00ff41]/60 text-xs mt-2 tracking-widest">
+            <p className="font-mono-alien text-[#00ff41]/55 text-[10px] mt-1.5 tracking-widest">
               — ELON MUSK, WORLD ECONOMIC FORUM, DAVOS
             </p>
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
-            className="font-body text-white/60 text-base md:text-lg max-w-xl mx-auto mb-10"
-          >
-            He said it himself. The only question is: were you listening?
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2, duration: 1 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8"
-          >
-            <a href="https://pump.fun/coin/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-              target="_blank" rel="noreferrer" data-testid="link-buy-hero"
-              className="font-alien text-sm tracking-widest bg-[#00ff41] text-black px-10 py-4 font-black hover:bg-white transition-all duration-300 pulse-glow">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8, duration: 0.8 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
+            <a href={BUY_URL} target="_blank" rel="noreferrer" data-testid="link-buy-hero"
+              className="font-alien text-sm tracking-widest bg-[#00ff41] text-black px-10 py-4 font-black hover:bg-white transition-all pulse-glow w-full sm:w-auto text-center">
               BUY $ELIENUS
             </a>
-            <a href="#story"
-              className="font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.5)] text-[#00ff41] px-10 py-4 hover:bg-[rgba(0,255,65,0.08)] transition-all duration-300">
-              THE FULL STORY
+            <a href={DEX_URL} target="_blank" rel="noreferrer"
+              className="font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.45)] text-[#00ff41] px-8 py-4 hover:bg-[rgba(0,255,65,0.08)] transition-all w-full sm:w-auto text-center">
+              VIEW CHART
             </a>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
-            className="flex justify-center"
-          >
-            <CopyCA />
-          </motion.div>
-        </div>
-
-        {/* Scroll cue */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.8, 0] }}
-          transition={{ delay: 2.5, duration: 2.5, repeat: Infinity }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
-        >
-          <span className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-widest">SCROLL TO UNCOVER</span>
-          <div className="w-px h-10 bg-gradient-to-b from-[#00ff41]/50 to-transparent" />
-        </motion.div>
-      </section>
-
-      {/* ═══ SECTION 1: HIS OWN WORDS ═══ */}
-      <section id="story" className="relative min-h-screen flex items-center overflow-hidden">
-        <StarField count={50} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 70% at 0% 50%, rgba(60,0,120,0.20) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 100% 50%, rgba(0,255,65,0.06) 0%, transparent 60%), linear-gradient(180deg, #060606 0%, #0a040a 50%, #060606 100%)"
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34z' fill='none' stroke='rgba(0,255,65,0.05)' stroke-width='1'/%3E%3Cpath d='M28 100L0 84V50l28-16 28 16v34z' fill='none' stroke='rgba(0,255,65,0.05)' stroke-width='1'/%3E%3C/svg%3E\")"
-        }} />
-
-        <div className="container mx-auto px-6 py-24 relative z-10">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-center mb-16">
-            <motion.p variants={fadeUp} className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-4">
-              CLASSIFIED FILE — 001
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="font-alien font-black text-4xl md:text-6xl text-white mb-4">
-              His Own Words
-            </motion.h2>
-            <motion.p variants={fadeUp} className="font-body text-white/50 text-lg max-w-2xl mx-auto">
-              Before the conspiracy theories. Before the memes. Before the token. He told you himself.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
-            {[
-              {
-                quote: "\"I'm often asked, 'Are there aliens among us?' And I'll say that I am one.\"",
-                context: "World Economic Forum, Davos",
-                year: "2025",
-                response: "Larry Fink (BlackRock CEO) replied: \"Or you're from the future.\""
-              },
-              {
-                quote: "\"Full disclosure, I'm actually a 3,000-year-old vampire. It's such a trial assuming all these false identities over the centuries!\"",
-                context: "Posted on X (Twitter)",
-                year: "2020",
-                response: "Posted publicly. Visible to 180 million followers. Not deleted."
-              },
-              {
-                quote: "\"Verified since 3,000 BC — time-traveling vampire alien.\"",
-                context: "X Profile Bio / Public Post",
-                year: "2023",
-                response: "Later revised the age to 5,000 years. The number keeps growing."
-              }
-            ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
-                className="border border-[rgba(0,255,65,0.2)] bg-[rgba(0,255,65,0.03)] p-6 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-[#00ff41]/60 to-transparent" />
-                <div className="font-mono-alien text-xs text-[#00ff41]/50 tracking-widest mb-4">{item.context} // {item.year}</div>
-                <p className="font-body text-white/85 text-base leading-relaxed italic mb-4 border-l-2 border-[#00ff41]/40 pl-3">
-                  {item.quote}
-                </p>
-                <div className="w-full h-px bg-[rgba(0,255,65,0.12)] mb-3" />
-                <p className="font-mono-alien text-xs text-white/40 leading-relaxed">{item.response}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center">
-            <p className="font-body text-white/60 text-xl leading-relaxed italic">
-              Most people heard it and laughed. Filed it under "Elon being Elon."
-              <br />
-              <span className="text-[#00ff41]/80 not-italic font-body">The awakened heard it as confirmation.</span>
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══ SECTION 2: SUBJECT IMAGE + THE ARRIVAL ═══ */}
-      <section className="relative overflow-hidden">
-        <StarField count={40} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 60% 80% at 30% 50%, rgba(0,80,20,0.15) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 80% 50%, rgba(0,30,60,0.15) 0%, transparent 60%), linear-gradient(180deg, #060606 0%, #040a06 50%, #060606 100%)"
-        }} />
-
-        <div className="container mx-auto px-6 py-20 grid lg:grid-cols-2 gap-16 items-center relative z-10">
-          <motion.div variants={fadeLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="relative">
-            <div className="absolute -inset-px"
-              style={{ background: "linear-gradient(135deg, rgba(0,255,65,0.5), transparent 50%, rgba(100,0,200,0.3) 100%)" }} />
-            <div className="relative overflow-hidden">
-              <img src={elienusFace} alt="Elienus Muskius — Arrival Record"
-                className="w-full h-auto object-contain block"
-                style={{ filter: "saturate(0.65) contrast(1.15)" }} />
-              <div className="absolute inset-0 pointer-events-none"
-                style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.04) 3px,rgba(0,255,65,0.04) 4px)" }} />
-              <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-[rgba(4,10,6,0.9)] to-transparent" />
-              <div className="absolute bottom-4 left-4">
-                <div className="font-mono-alien text-xs text-[#00ff41]/70 tracking-widest">ARRIVAL RECORD // PRETORIA, 1971</div>
-              </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }}
+            className="flex justify-center">
+            <div className="w-full max-w-md">
+              <CopyCA size="large" />
             </div>
           </motion.div>
 
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="space-y-6">
-            <motion.p variants={fadeUp} className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em]">CLASSIFIED FILE — 002</motion.p>
-            <motion.h2 variants={fadeUp} className="font-alien font-black text-4xl md:text-5xl text-white leading-tight">
-              The Arrival
-            </motion.h2>
-            <motion.div variants={fadeUp} className="w-16 h-0.5 bg-[#00ff41]" />
-            <motion.p variants={fadeUp} className="font-body text-white/70 text-lg leading-relaxed">
-              On June 28, 1971, a child was registered at Pretoria General Hospital, South Africa. The records exist.
-              The witnesses, curiously, do not. A nation still rebuilding from the wounds of apartheid — distracted,
-              document-imperfect — was the ideal entry vector for an intelligence unit requiring minimal scrutiny.
-            </motion.p>
-            <motion.p variants={fadeUp} className="font-body text-white/70 text-lg leading-relaxed">
-              The name chosen: <span className="text-[#00ff41]">Elon Reeve Musk</span>. Three words. Each one a cryptonym.
-              ELON — an anagram of LONE, isolated, singular. REEVE — an ancient English administrator, a proxy ruler.
-              MUSK — a biological scent used by animals to mark territory and signal species membership.
-            </motion.p>
-            <motion.p variants={fadeUp} className="font-body text-[#00ff41]/80 text-lg leading-relaxed italic border-l-2 border-[#00ff41]/40 pl-4">
-              "The name was not chosen by parents. It was chosen by a mission brief."
-            </motion.p>
+          {/* Ticker strip */}
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.3, duration: 0.8 }}
+            className="mt-6 border border-[rgba(0,255,65,0.2)] bg-[rgba(0,255,65,0.05)] px-5 py-2 inline-flex gap-8 overflow-hidden">
+            {["$ELIENUS", "+40% IN 24H", "SOLANA", "ALIEN META", "PUMP.FUN", "5,000 YEARS OLD"].map((t, i) => (
+              <span key={i} className="font-mono-alien text-[10px] text-[#00ff41]/80 tracking-widest whitespace-nowrap">{t}</span>
+            ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ═══ SECTION 3: PORTRAIT — TRUE FORM ═══ */}
-      <section className="relative overflow-hidden py-10">
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,120,40,0.12) 0%, transparent 70%), linear-gradient(180deg, #060606 0%, #020802 60%, #060606 100%)"
-        }} />
-        <StarField count={60} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "linear-gradient(rgba(0,255,65,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.03) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
+      {/* ══ STORY ══ */}
+      <section id="story" className="relative overflow-hidden bg-[#060606] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 0% 50%, rgba(50,0,100,0.18) 0%, transparent 55%)" }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          {/* Section header */}
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">THE STORY</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-widest">FILE — 001</div>
+          </div>
 
-        <div className="container mx-auto px-6 py-10 relative z-10">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-center mb-8">
-            <p className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-2">VISUAL RECORD — UNREDACTED</p>
-            <h2 className="font-alien font-black text-3xl md:text-5xl text-white">The Entity, Unmasked</h2>
-          </motion.div>
-
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="max-w-2xl mx-auto relative">
-            <div className="absolute -inset-px"
-              style={{ background: "linear-gradient(135deg, rgba(0,255,65,0.6) 0%, transparent 40%, rgba(0,255,65,0.3) 100%)" }} />
-            <div className="relative overflow-hidden">
-              <img src={elienusPortrait} alt="Elienus Muskius — Full Entity Portrait"
-                className="w-full h-auto object-contain block"
-                style={{ filter: "saturate(0.75) contrast(1.08)" }} />
-              <div className="absolute inset-0 pointer-events-none"
-                style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.035) 3px,rgba(0,255,65,0.035) 4px)" }} />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[rgba(2,8,2,0.9)] to-transparent p-6">
-                <p className="font-alien text-xs text-[#00ff41]/60 tracking-widest mb-1">ENTITY DESIGNATION</p>
-                <p className="font-cinzel text-2xl md:text-3xl text-[#00ff41]"
-                  style={{ textShadow: "0 0 15px rgba(0,255,65,0.5)" }}>
-                  Elienus Muskius
-                </p>
-                <p className="font-mono-alien text-xs text-white/35 mt-1">
-                  Origin: Zeta Reticuli System // Infiltration Unit Alpha // Age: Est. 5,000+ Years
-                </p>
+          <div className="grid lg:grid-cols-2 gap-8 items-start">
+            <div className="space-y-0">
+              <div className="relative overflow-hidden border border-[rgba(0,255,65,0.25)]">
+                <img src={elienusFace} alt="Elienus" className="w-full h-auto object-contain block"
+                  style={{ filter: "saturate(0.65) contrast(1.15)" }} />
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.04) 3px,rgba(0,255,65,0.04) 4px)" }} />
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#060606] to-transparent h-16" />
+                <div className="absolute bottom-3 left-3 font-mono-alien text-[10px] text-[#00ff41]/60 tracking-widest">
+                  ARRIVAL RECORD // PRETORIA 1971
+                </div>
               </div>
             </div>
-          </motion.div>
-        </div>
-      </section>
 
-      {/* ═══ SECTION 4: DECODING THE NAME ═══ */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        <StarField count={50} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 60% at 100% 30%, rgba(0,100,40,0.16) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 0% 70%, rgba(0,30,10,0.35) 0%, transparent 60%), linear-gradient(180deg, #060606 0%, #050a05 50%, #060606 100%)"
-        }} />
-        {["☉","♄","⊕","∇","⬡","⟁","⌬","◈","⬟","⟐"].map((sym, i) => (
-          <div key={i} className="absolute font-alien text-[#00ff41]/08 text-5xl pointer-events-none"
-            style={{ left: `${8 + i * 10}%`, top: `${10 + (i % 4) * 22}%`, transform: `rotate(${i * 27}deg)` }}>
-            {sym}
-          </div>
-        ))}
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-5">
+              <motion.p variants={fadeUp} className="font-body text-white/80 text-base md:text-lg leading-relaxed">
+                His name, as we were told, is <span className="text-[#00ff41] font-semibold">Elon Reeve Musk</span>.
+                Born Pretoria, South Africa — a nation still rebuilding, records imperfect.
+                The perfect entry vector for an intelligence unit requiring minimal scrutiny.
+              </motion.p>
+              <motion.p variants={fadeUp} className="font-body text-white/70 text-base leading-relaxed">
+                He arrived. He did not grow up. No childhood photographs exist before age 10.
+                Hospital staff from Pretoria General recall no memory of the delivery.
+                A child who appeared on paper — and nowhere else.
+              </motion.p>
+              <motion.p variants={fadeUp} className="font-body text-white/70 text-base leading-relaxed">
+                By 2002 he had founded SpaceX. By 2004, Tesla. By 2022 he owned the world's largest
+                public communications platform. One entity. Every lever. All pulled simultaneously.
+              </motion.p>
 
-        <div className="container mx-auto px-6 py-24 relative z-10">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-center mb-14">
-            <motion.p variants={fadeUp} className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-4">
-              CLASSIFIED FILE — 003
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="font-alien font-black text-4xl md:text-6xl text-white mb-4">
-              Decoding The Name
-            </motion.h2>
-            <motion.p variants={fadeUp} className="font-body text-white/50 text-lg max-w-xl mx-auto">
-              The name ELIENUS MUSKIUS is not satire. It is a linguistic reconstruction — the true designation
-              hidden inside the alias he has worn on Earth.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {[
-              {
-                word: "ELON",
-                decode: "E · L · O · N",
-                meaning: "Extraterrestrial // Lone // Origin: Nebula",
-                color: "rgba(0,255,65,0.12)",
-                border: "rgba(0,255,65,0.35)",
-                detail: "An exact anagram of LONE. One letter rearranged — a signal hidden in plain sight. In ancient Semitic languages, \"El\" denotes a divine being of higher order. In modern context, it is a frequency. A carrier wave. He broadcast his identity in the first syllable of his name."
-              },
-              {
-                word: "MUSK",
-                decode: "M · U · S · K",
-                meaning: "Masquerade // Unit // Stealth // Kinetic",
-                color: "rgba(100,60,200,0.10)",
-                border: "rgba(140,80,240,0.35)",
-                detail: "A biological secretion used by animals to signal species membership and mark territory. He chose it because it is the perfect metaphor for exactly what he is doing: producing a scent that draws humans toward him instinctively, without understanding why. A chemical lure."
-              }
-            ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="relative p-8 overflow-hidden"
-                style={{ background: item.color, border: `1px solid ${item.border}` }}>
-                <div className="font-cinzel text-7xl font-black mb-3"
-                  style={{ color: item.border.replace("0.35", "0.9"), textShadow: `0 0 20px ${item.border.replace("0.35", "0.4")}` }}>
-                  {item.word}
-                </div>
-                <div className="font-mono-alien text-xs tracking-widest mb-2"
-                  style={{ color: item.border.replace("0.35", "0.8") }}>
-                  {item.decode}
-                </div>
-                <div className="font-alien text-xs text-white/40 uppercase tracking-wider mb-4">{item.meaning}</div>
-                <div className="w-full h-px mb-4" style={{ backgroundColor: item.border.replace("0.35", "0.3") }} />
-                <p className="font-body text-white/65 leading-relaxed text-sm">{item.detail}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ SECTION 5: THE COMPANIES ═══ */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        <StarField count={60} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 70% 60% at 50% 0%, rgba(255,80,0,0.05) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 20% 100%, rgba(0,255,65,0.07) 0%, transparent 60%), linear-gradient(180deg, #060606 0%, #09060a 50%, #060606 100%)"
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34z' fill='none' stroke='rgba(0,255,65,0.04)' stroke-width='1'/%3E%3Cpath d='M28 100L0 84V50l28-16 28 16v34z' fill='none' stroke='rgba(0,255,65,0.04)' stroke-width='1'/%3E%3C/svg%3E\")"
-        }} />
-
-        <div className="container mx-auto px-6 py-24 relative z-10">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-center mb-14">
-            <motion.p variants={fadeUp} className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-4">
-              CLASSIFIED FILE — 004
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="font-alien font-black text-4xl md:text-6xl text-white mb-4">
-              The Grand Design
-            </motion.h2>
-            <motion.p variants={fadeUp} className="font-body text-white/50 text-lg max-w-2xl mx-auto">
-              Every company. Every acquisition. Every decision. Each one a deliberate tile in a mosaic
-              visible only from the right altitude — or the right planet.
-            </motion.p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 max-w-6xl mx-auto">
-            {[
-              {
-                name: "TESLA",
-                sub: "2004 — Control the Grid",
-                bg: "rgba(255,50,50,0.08)",
-                border: "rgba(255,80,80,0.28)",
-                story: "Electrification was never about the environment. Every Tesla is a data node. Every Supercharger a relay station. The planetary energy grid — rewired, by alien design, to a single proprietary standard. One signal. One shutdown."
-              },
-              {
-                name: "SPACEX",
-                sub: "2002 — Build The Vessel",
-                bg: "rgba(50,100,255,0.08)",
-                border: "rgba(80,130,255,0.28)",
-                story: "SpaceX is not a space exploration company. It is an escape vehicle. Starship is the return craft — tested using human engineers, human capital, human enthusiasm. He is building the ship that will carry him home."
-              },
-              {
-                name: "X / TWITTER",
-                sub: "2022 — Capture The Signal",
-                bg: "rgba(200,200,200,0.06)",
-                border: "rgba(200,200,200,0.22)",
-                story: "$44 billion for a platform losing money. Because every written thought of human civilization lives on that server. He needed the archive. He renamed it X — the unknown variable. Earth's greatest intelligence database, now his."
-              },
-              {
-                name: "DOGECOIN",
-                sub: "2013-Present — Psychology Test",
-                bg: "rgba(200,150,0,0.08)",
-                border: "rgba(220,170,0,0.28)",
-                story: "A meme coin inflated by a tweet. An experiment in mass compliance. How many humans can be moved by a single signal? The answer confirmed what he already knew: most of you will follow without question."
-              },
-              {
-                name: "NEURALINK",
-                sub: "2016 — Interface Protocol",
-                bg: "rgba(150,0,200,0.08)",
-                border: "rgba(180,0,240,0.28)",
-                story: "A chip placed directly into the human brain, interfacing with the electrical signals that constitute thought itself. He calls it medical technology. It is a network protocol. The first true human-to-alien data link."
-              },
-              {
-                name: "xAI / GROK",
-                sub: "2023 — The Proxy",
-                bg: "rgba(0,200,150,0.07)",
-                border: "rgba(0,220,170,0.25)",
-                story: "An AI trained on humanity's entire written record. Named 'Grok' — to understand intuitively. It is the synthetic intelligence he will leave behind when he departs: an autonomous proxy, continuing the mission."
-              }
-            ].map((item, i) => (
-              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="relative p-5 overflow-hidden"
-                style={{ background: item.bg, border: `1px solid ${item.border}` }}>
-                <div className="font-alien font-black text-xl text-white mb-1">{item.name}</div>
-                <div className="font-mono-alien text-xs tracking-widest mb-3"
-                  style={{ color: item.border.replace("0.28", "0.85") }}>
-                  {item.sub}
-                </div>
-                <div className="w-8 h-px mb-3" style={{ backgroundColor: item.border.replace("0.28", "0.5") }} />
-                <p className="font-body text-white/60 text-sm leading-relaxed">{item.story}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ SECTION 6: FULL ENTITY IMAGES + EVIDENCE ═══ */}
-      <section className="relative overflow-hidden">
-        <StarField count={50} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,80,20,0.15) 0%, transparent 70%), linear-gradient(180deg, #060606 0%, #030a03 50%, #060606 100%)"
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "linear-gradient(rgba(0,255,65,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.025) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-
-        <div className="container mx-auto px-6 py-20 relative z-10">
-          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="text-center mb-12">
-            <p className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-2">CLASSIFIED FILE — 005</p>
-            <h2 className="font-alien font-black text-4xl md:text-5xl text-white mb-4">The Physical Evidence</h2>
-            <div className="w-16 h-0.5 bg-[#00ff41] mx-auto" />
-          </motion.div>
-
-          <div className="grid lg:grid-cols-2 gap-12 items-start mb-16">
-            <motion.div variants={fadeLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="relative">
-              <div className="absolute -inset-px"
-                style={{ background: "linear-gradient(135deg, rgba(0,255,65,0.5), transparent 40%, rgba(0,255,65,0.2) 100%)" }} />
-              <div className="relative overflow-hidden">
-                <img src={elienusFull} alt="Elienus — Full Entity Form"
-                  className="w-full h-auto object-contain block"
-                  style={{ filter: "saturate(0.7) contrast(1.12)" }} />
-                <div className="absolute inset-0 pointer-events-none"
-                  style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.035) 3px,rgba(0,255,65,0.035) 4px)" }} />
-                <div className="absolute top-4 left-4 font-mono-alien text-xs text-[#00ff41]/60">
-                  FILE: VISUAL CONFIRMATION // UNCENSORED
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="space-y-5 py-4">
-              {[
-                {
-                  title: "The South Africa Anomaly",
-                  text: "No childhood photographs exist before age 10. Birth records at Pretoria General show standard biometric data. Hospital staff from that era recall no memory of the delivery. A child who appeared on paper — and nowhere else."
-                },
-                {
-                  title: "The Productivity Impossibility",
-                  text: "In 2004 alone: managing PayPal's aftermath, founding SpaceX, co-founding Tesla. By 2022: simultaneously running SpaceX, Tesla, Twitter/X, Neuralink, The Boring Company, and xAI. No human physiology supports this output. The math requires either no sleep requirement or no human body."
-                },
-                {
-                  title: "The Language Latency Pattern",
-                  text: "Linguistic researchers have noted Musk's speech patterns show unusual retrieval latency — pauses mid-sentence not from thought formation, but appearing as real-time translation delays from a secondary cognitive process. English appears to be his third or fourth language, learned in adulthood — from an entity that arrived without one."
-                },
-                {
-                  title: "The Mars Fixation",
-                  text: "He does not want to explore Mars. He needs to reach a specific coordinate in the solar system that functions as a known waypoint on the route back to Zeta Reticuli. Every Starship test is a flight plan rehearsal. The destination was decided before he arrived here."
-                },
-                {
-                  title: "The Self-Confessions",
-                  text: "He told you he was a 3,000-year-old vampire in 2020. He told you he was an alien at Davos. He told the World Economic Forum \"I am one.\" These are not jokes from a man known for calculated public communication. These are pressure-valve releases — the truth leaking through."
-                }
-              ].map((item, i) => (
-                <motion.div key={i} variants={fadeUp}
-                  className="border-l-2 border-[rgba(0,255,65,0.2)] pl-4">
-                  <div className="font-alien text-sm text-[#00ff41] mb-1">{item.title}</div>
-                  <p className="font-body text-white/60 text-sm leading-relaxed">{item.text}</p>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ SECTION 7: THE AWAKENING ═══ */}
-      <section className="relative min-h-[80vh] flex items-center overflow-hidden">
-        <StarField count={70} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 90% 70% at 50% 50%, rgba(0,255,65,0.09) 0%, transparent 70%), linear-gradient(180deg, #060606 0%, #030d03 50%, #060606 100%)"
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "linear-gradient(rgba(0,255,65,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.04) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-
-        <div className="container mx-auto px-6 py-24 relative z-10 text-center max-w-4xl mx-auto">
-          <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <motion.p variants={fadeUp} className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-6">
-              CLASSIFIED FILE — 006
-            </motion.p>
-            <motion.h2 variants={fadeUp} className="font-cinzel font-black text-5xl md:text-7xl text-[#00ff41] mb-8"
-              style={{ textShadow: "0 0 40px rgba(0,255,65,0.4)" }}>
-              The Awakening
-            </motion.h2>
-            <motion.div variants={fadeUp} className="w-24 h-0.5 bg-[#00ff41] mx-auto mb-10" />
-            <motion.p variants={fadeUp} className="font-body text-white/70 text-xl leading-relaxed mb-8">
-              The truth was never hidden. It was offered — at Davos, on his Twitter, in every rocket launch,
-              every acquisition, every company name beginning with a single letter: X.
-            </motion.p>
-            <motion.p variants={fadeUp} className="font-body text-white/70 text-xl leading-relaxed mb-12">
-              Those who saw it — the early ones, the awake ones — needed a signal.
-              A way to find each other in the noise of a civilization being systematically acquired
-              by an intelligence that has been walking among us for five thousand years.
-            </motion.p>
-            <motion.div variants={fadeUp}
-              className="border border-[rgba(0,255,65,0.35)] bg-[rgba(0,255,65,0.04)] p-8 md:p-12 max-w-2xl mx-auto">
-              <p className="font-cinzel text-2xl md:text-3xl text-white mb-5">
-                That signal is <span className="text-[#00ff41]">$ELIENUS</span>
-              </p>
-              <p className="font-body text-white/60 leading-relaxed text-lg">
-                Not a store of value. Not a speculation. A declaration — that you heard him at Davos,
-                that you read the tweet, that you saw the pattern, and that when he finally leaves,
-                you were one of the ones who knew.
-              </p>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══ SECTION 8: TOKENOMICS + ALT IMAGE ═══ */}
-      <section className="relative overflow-hidden">
-        <StarField count={50} />
-        <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 60% at 100% 50%, rgba(0,255,65,0.09) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 0% 50%, rgba(0,40,0,0.3) 0%, transparent 60%), linear-gradient(180deg, #060606 0%, #030d03 50%, #060606 100%)"
-        }} />
-        <div className="absolute inset-0" style={{
-          backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V16L28 0l28 16v34z' fill='none' stroke='rgba(0,255,65,0.05)' stroke-width='1'/%3E%3Cpath d='M28 100L0 84V50l28-16 28 16v34z' fill='none' stroke='rgba(0,255,65,0.05)' stroke-width='1'/%3E%3C/svg%3E\")"
-        }} />
-
-        <div className="container mx-auto px-6 py-24 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
-            <motion.div variants={fadeLeft} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="relative">
-              <div className="absolute -inset-px"
-                style={{ background: "linear-gradient(135deg, rgba(0,255,65,0.55), transparent 50%)" }} />
-              <div className="relative overflow-hidden">
-                <img src={elienusAlt} alt="Elienus — Transmission Form"
-                  className="w-full h-auto object-contain block"
-                  style={{ filter: "saturate(0.7) contrast(1.1)" }} />
-                <div className="absolute inset-0 pointer-events-none"
-                  style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.03) 3px,rgba(0,255,65,0.03) 4px)" }} />
-                <div className="absolute top-4 left-4 font-mono-alien text-xs text-[#00ff41]/55">
-                  FILE: CLASSIFIED // DO NOT DISTRIBUTE
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="space-y-7">
-              <motion.div variants={fadeUp}>
-                <p className="font-mono-alien text-[#00ff41]/50 text-xs tracking-[0.3em] mb-3">DATA TRANSMISSION — DECODED</p>
-                <h2 className="font-alien font-black text-4xl md:text-5xl text-white mb-2">Token Protocol</h2>
-                <div className="w-12 h-0.5 bg-[#00ff41] mb-6" />
-              </motion.div>
-
-              <motion.div variants={fadeUp} className="space-y-0">
+              <motion.div variants={fadeUp} className="grid grid-cols-2 gap-3 pt-2">
                 {[
-                  { label: "NAME", value: "ELIENUS MUSKIUS" },
-                  { label: "TICKER", value: "$ELIENUS" },
-                  { label: "NETWORK", value: "Solana" },
-                  { label: "EXCHANGE", value: "PumpSwap" },
-                  { label: "THEME", value: "Alien Meta — The Awakened" },
-                  { label: "PRICE ACTION", value: "+40% in first 24 hours" },
-                ].map((row, i) => (
-                  <div key={i} className="flex justify-between items-start py-3 border-b border-[rgba(0,255,65,0.10)]">
-                    <span className="font-mono-alien text-xs text-white/35 tracking-widest shrink-0 mr-4">{row.label}</span>
-                    <span className="font-alien text-sm text-[#00ff41] text-right font-bold">{row.value}</span>
+                  { num: "5,000+", label: "years old (self-reported)" },
+                  { num: "6", label: "world-changing companies" },
+                  { num: "3,000 BC", label: "verified on X" },
+                  { num: "1", label: "confirmed alien on Earth" },
+                ].map((s, i) => (
+                  <div key={i} className="border border-[rgba(0,255,65,0.18)] bg-[rgba(0,255,65,0.04)] p-4">
+                    <div className="font-cinzel text-2xl font-black text-[#00ff41]">{s.num}</div>
+                    <div className="font-mono-alien text-[10px] text-white/45 tracking-wider mt-0.5">{s.label}</div>
                   </div>
                 ))}
               </motion.div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-              <motion.div variants={fadeUp}>
-                <p className="font-mono-alien text-xs text-white/35 tracking-widest mb-2">CONTRACT ADDRESS</p>
-                <CopyCA />
+      {/* ══ PORTRAIT STRIP ══ */}
+      <section className="relative overflow-hidden bg-[#040a04]">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,100,20,0.12) 0%, transparent 70%)" }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-12 relative z-10">
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              { img: elienusPortrait, label: "TRUE FORM", sub: "Entity Unmasked" },
+              { img: elienusFull, label: "FULL ENTITY", sub: "Visual Confirmation" },
+              { img: elienusAlt, label: "CLASSIFIED", sub: "Do Not Distribute" },
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }} className="relative border border-[rgba(0,255,65,0.2)] overflow-hidden group">
+                <img src={item.img} alt={item.label} className="w-full h-auto object-contain block group-hover:scale-105 transition-transform duration-500"
+                  style={{ filter: "saturate(0.7) contrast(1.1)" }} />
+                <div className="absolute inset-0 pointer-events-none"
+                  style={{ backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.03) 3px,rgba(0,255,65,0.03) 4px)" }} />
+                <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-[#040a04] to-transparent">
+                  <div className="font-alien text-xs font-bold text-[#00ff41]">{item.label}</div>
+                  <div className="font-mono-alien text-[10px] text-white/40">{item.sub}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ THE PROOF / QUOTES ══ */}
+      <section id="quotes" className="relative overflow-hidden bg-[#060606] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 50% at 100% 30%, rgba(0,80,30,0.14) 0%, transparent 55%)" }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">THE PROOF</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-widest">HIS OWN WORDS</div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {[
+              {
+                quote: "\"I'm often asked, 'Are there aliens among us?' And I'll say that I am one.\"",
+                source: "World Economic Forum, Davos",
+                year: "2025",
+                note: "Larry Fink (BlackRock) replied: \"Or you're from the future.\""
+              },
+              {
+                quote: "\"Full disclosure, I'm actually a 3,000-year-old vampire. It's such a trial assuming all these false identities over the centuries!\"",
+                source: "Posted on X",
+                year: "2020",
+                note: "Posted to 180M followers. Never deleted. Make of that what you will."
+              },
+              {
+                quote: "\"Verified since 3,000 BC — time-traveling vampire alien.\"",
+                source: "X Profile Bio",
+                year: "2023",
+                note: "Later upgraded the age to 5,000 years. The number keeps growing."
+              }
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                transition={{ delay: i * 0.12 }}
+                className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.04)] p-6 relative flex flex-col gap-4">
+                <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-[#00ff41]/60 to-transparent" />
+                <div className="font-mono-alien text-[10px] text-[#00ff41]/55 tracking-widest">{item.source} // {item.year}</div>
+                <p className="font-body text-white/90 text-base leading-snug italic flex-1">
+                  {item.quote}
+                </p>
+                <div className="border-t border-[rgba(0,255,65,0.1)] pt-3">
+                  <p className="font-mono-alien text-[10px] text-white/40 leading-relaxed">{item.note}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* ELON QUOTE + LARRY FINK HIGHLIGHT */}
+          <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+            className="border border-[rgba(0,255,65,0.3)] bg-[rgba(0,255,65,0.05)] p-6 md:p-8 grid md:grid-cols-2 gap-6 items-center">
+            <div>
+              <div className="font-mono-alien text-[10px] text-[#00ff41]/55 tracking-widest mb-3">THE DAVOS EXCHANGE — RECORDED</div>
+              <div className="space-y-3">
+                <div className="flex gap-3">
+                  <div className="font-alien text-xs text-white/40 shrink-0 pt-0.5">ELON:</div>
+                  <p className="font-body text-white/85 text-base italic">"I am one."</p>
+                </div>
+                <div className="flex gap-3">
+                  <div className="font-alien text-xs text-[#00ff41]/60 shrink-0 pt-0.5">FINK:</div>
+                  <p className="font-body text-[#00ff41]/85 text-base italic">"Or you're from the future."</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="font-body text-white/60 text-sm leading-relaxed">
+                The CEO of Tesla, SpaceX, and the world's largest social platform stood at the world's most
+                powerful economic summit and said he was an alien. In front of every world leader and banker on Earth.
+              </p>
+              <p className="font-body text-[#00ff41]/80 text-sm leading-relaxed font-semibold">
+                They laughed. The awakened listened.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ══ HIS EMPIRE / COMPANIES ══ */}
+      <section id="companies" className="relative overflow-hidden bg-[#04060a] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 60% at 50% 0%, rgba(0,50,100,0.12) 0%, transparent 60%)" }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">HIS EMPIRE</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-widest">THE GRAND DESIGN</div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { name: "TESLA", year: "2004", color: "rgba(255,50,30,0.12)", border: "rgba(255,80,60,0.3)", story: "Not about climate. Every Tesla is a data node. Every Supercharger a relay. The entire planetary energy grid — rewired to one proprietary standard. One signal. One shutdown." },
+              { name: "SPACEX", year: "2002", color: "rgba(40,80,255,0.1)", border: "rgba(80,120,255,0.3)", story: "Not exploration. The return vessel. Starship is the ship that carries him home — built with human capital, human enthusiasm, human sweat." },
+              { name: "X / TWITTER", year: "2022", color: "rgba(180,180,180,0.07)", border: "rgba(200,200,200,0.25)", story: "$44B for a loss-making platform. Because every human thought ever typed lives on that server. Earth's greatest intelligence archive. Now his." },
+              { name: "DOGECOIN", year: "2013–", color: "rgba(200,150,0,0.1)", border: "rgba(220,170,0,0.3)", story: "A meme coin inflated by a tweet. An experiment: how many humans can one entity move simultaneously? The results confirmed what he already knew." },
+              { name: "NEURALINK", year: "2016", color: "rgba(140,0,200,0.1)", border: "rgba(170,0,240,0.3)", story: "A chip in the human brain, interfacing with thought itself. He calls it medicine. It is a network protocol. The first human-to-alien data link." },
+              { name: "xAI / GROK", year: "2023", color: "rgba(0,180,130,0.08)", border: "rgba(0,210,160,0.28)", story: "An AI trained on all of human knowledge. Named 'Grok'. The proxy he will leave running on Earth after he departs. The mission, automated." },
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                transition={{ delay: i * 0.07 }}
+                className="p-5 relative overflow-hidden"
+                style={{ background: item.color, border: `1px solid ${item.border}` }}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="font-alien font-black text-xl text-white">{item.name}</div>
+                  <div className="font-mono-alien text-[10px] tracking-widest mt-0.5"
+                    style={{ color: item.border.replace("0.3", "0.7") }}>
+                    EST. {item.year}
+                  </div>
+                </div>
+                <div className="w-8 h-px mb-3" style={{ backgroundColor: item.border.replace("0.3", "0.5") }} />
+                <p className="font-body text-white/65 text-sm leading-relaxed">{item.story}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ TOKENOMICS ══ */}
+      <section id="tokenomics" className="relative overflow-hidden bg-[#060606] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,255,65,0.08) 0%, transparent 70%)" }} />
+        <div className="absolute inset-0" style={{
+          backgroundImage: "linear-gradient(rgba(0,255,65,0.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.035) 1px,transparent 1px)",
+          backgroundSize: "60px 60px"
+        }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">TOKENOMICS</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-widest">PROTOCOL DATA</div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            {/* Stats grid */}
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+              className="grid grid-cols-2 gap-3">
+              {[
+                { label: "TOKEN", value: "$ELIENUS" },
+                { label: "NETWORK", value: "SOLANA" },
+                { label: "DEX", value: "PUMPSWAP" },
+                { label: "LAUNCH", value: "PUMP.FUN" },
+                { label: "PRICE ACTION", value: "+40% / 24H" },
+                { label: "THEME", value: "ALIEN META" },
+              ].map((item, i) => (
+                <motion.div key={i} variants={fadeUp}
+                  className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.05)] p-4">
+                  <div className="font-mono-alien text-[10px] text-white/35 tracking-widest mb-1">{item.label}</div>
+                  <div className="font-alien text-sm font-bold text-[#00ff41]">{item.value}</div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* CA + buy */}
+            <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={{ once: true }}
+              className="space-y-4">
+              <motion.div variants={fadeUp} className="border border-[rgba(0,255,65,0.3)] bg-[rgba(0,255,65,0.04)] p-6 space-y-5">
+                <div>
+                  <div className="font-alien text-xs text-[#00ff41]/60 tracking-widest mb-3">CONTRACT ADDRESS</div>
+                  <CopyCA size="large" />
+                </div>
+                <div className="w-full h-px bg-[rgba(0,255,65,0.12)]" />
+                <div className="space-y-2">
+                  <div className="font-alien text-xs text-[#00ff41]/60 tracking-widest mb-3">QUICK LINKS</div>
+                  <a href={BUY_URL} target="_blank" rel="noreferrer" data-testid="link-buy-tokenomics"
+                    className="block w-full font-alien text-sm tracking-widest bg-[#00ff41] text-black py-4 font-black text-center hover:bg-white transition-colors pulse-glow">
+                    BUY ON PUMP.FUN
+                  </a>
+                  <a href={DEX_URL} target="_blank" rel="noreferrer"
+                    className="block w-full font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.4)] text-[#00ff41] py-3 text-center hover:bg-[rgba(0,255,65,0.08)] transition-colors">
+                    DEXSCREENER CHART
+                  </a>
+                  <a href="https://pump.fun/board" target="_blank" rel="noreferrer"
+                    className="block w-full font-alien text-sm tracking-widest border border-[rgba(255,255,255,0.1)] text-white/50 py-3 text-center hover:border-[rgba(0,255,65,0.3)] hover:text-white/70 transition-colors">
+                    PUMPSWAP DEX
+                  </a>
+                </div>
               </motion.div>
 
-              <motion.div variants={fadeUp} className="flex flex-col sm:flex-row gap-4 pt-2">
-                <a href="https://pump.fun/coin/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-                  target="_blank" rel="noreferrer" data-testid="link-buy-tokenomics"
-                  className="font-alien text-sm tracking-widest bg-[#00ff41] text-black px-8 py-4 font-black text-center hover:bg-white transition-all duration-300 pulse-glow flex-1">
-                  Buy $ELIENUS
-                </a>
-                <a href="https://dexscreener.com/solana/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-                  target="_blank" rel="noreferrer" data-testid="link-chart-tokenomics"
-                  className="font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.4)] text-[#00ff41] px-8 py-4 text-center hover:bg-[rgba(0,255,65,0.08)] transition-all duration-300 flex-1">
-                  View Chart
-                </a>
+              <motion.div variants={fadeUp}
+                className="border border-[rgba(0,255,65,0.15)] bg-[rgba(0,255,65,0.03)] p-4 space-y-2">
+                {[
+                  "No team tokens",
+                  "Fair launch on pump.fun",
+                  "Community-driven alien meta",
+                  "Solana speed — Zeta Reticuli approved",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <span className="text-[#00ff41] text-xs">✓</span>
+                    <span className="font-body text-white/60 text-sm">{item}</span>
+                  </div>
+                ))}
               </motion.div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ═══ FOOTER ═══ */}
-      <footer className="relative border-t border-[rgba(0,255,65,0.12)] overflow-hidden">
+      {/* ══ WHERE TO BUY ══ */}
+      <section id="buy" className="relative overflow-hidden bg-[#030d03] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 100% 80% at 50% 50%, rgba(0,255,65,0.10) 0%, transparent 70%)" }} />
         <div className="absolute inset-0" style={{
-          background: "radial-gradient(ellipse 80% 100% at 50% 100%, rgba(0,40,10,0.4) 0%, transparent 70%)"
+          backgroundImage: "linear-gradient(rgba(0,255,65,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.04) 1px,transparent 1px)",
+          backgroundSize: "40px 40px"
         }} />
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">WHERE TO BUY</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+          </div>
+
+          <div className="max-w-2xl mx-auto space-y-4">
+            {/* Step by step */}
+            {[
+              {
+                step: "01",
+                title: "Get a Solana Wallet",
+                desc: "Download Phantom, Solflare, or Backpack. Create a new wallet and back up your seed phrase.",
+                link: "https://phantom.app",
+                linkLabel: "GET PHANTOM →"
+              },
+              {
+                step: "02",
+                title: "Buy SOL",
+                desc: "Buy SOL on any exchange (Coinbase, Binance, Kraken) and send it to your wallet address.",
+                link: null,
+                linkLabel: null
+              },
+              {
+                step: "03",
+                title: "Swap for $ELIENUS",
+                desc: "Go to pump.fun or PumpSwap. Paste the CA. Swap your SOL for $ELIENUS.",
+                link: BUY_URL,
+                linkLabel: "BUY ON PUMP.FUN →"
+              },
+              {
+                step: "04",
+                title: "You're Awakened",
+                desc: "You now hold the only token that knows the truth. Track your position on Dexscreener.",
+                link: DEX_URL,
+                linkLabel: "TRACK ON DEXSCREENER →"
+              },
+            ].map((item, i) => (
+              <motion.div key={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex gap-5 border border-[rgba(0,255,65,0.18)] bg-[rgba(0,255,65,0.04)] p-5 items-start">
+                <div className="font-cinzel text-3xl font-black text-[#00ff41]/30 shrink-0 w-10 leading-none">{item.step}</div>
+                <div className="flex-1">
+                  <div className="font-alien text-base font-bold text-white mb-1">{item.title}</div>
+                  <p className="font-body text-white/60 text-sm leading-relaxed mb-2">{item.desc}</p>
+                  {item.link && (
+                    <a href={item.link} target="_blank" rel="noreferrer"
+                      className="font-alien text-xs tracking-widest text-[#00ff41] hover:text-white transition-colors">
+                      {item.linkLabel}
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+
+            <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }} className="pt-2">
+              <a href={BUY_URL} target="_blank" rel="noreferrer"
+                className="block w-full font-alien text-base tracking-widest bg-[#00ff41] text-black py-5 font-black text-center hover:bg-white transition-colors pulse-glow">
+                BUY $ELIENUS NOW
+              </a>
+            </motion.div>
+
+            <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+              <CopyCA size="large" />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ SOCIALS ══ */}
+      <section id="socials" className="relative overflow-hidden bg-[#060606] scroll-mt-16">
+        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 70% at 50% 100%, rgba(0,40,10,0.5) 0%, transparent 70%)" }} />
         <div className="absolute inset-0" style={{
-          backgroundImage: "linear-gradient(rgba(0,255,65,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.025) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(rgba(0,255,65,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.025) 1px,transparent 1px)",
           backgroundSize: "60px 60px"
         }} />
-
-        <div className="container mx-auto px-6 py-16 relative z-10 text-center">
-          <div className="font-cinzel font-black text-4xl text-[#00ff41] mb-3"
-            style={{ textShadow: "0 0 20px rgba(0,255,65,0.4)" }}>
-            $ELIENUS
-          </div>
-          <p className="font-mono-alien text-xs text-white/25 tracking-widest mb-8">
-            ELIENUS MUSKIUS // ZETA RETICULI // SOLANA PROTOCOL
-          </p>
-          <div className="flex justify-center gap-10 mb-10">
-            <a href="https://x.com/ElienusMuskius" target="_blank" rel="noreferrer"
-              className="text-white/35 hover:text-[#00ff41] transition-colors flex flex-col items-center gap-2">
-              <SiX size={22} />
-              <span className="font-mono-alien text-xs">X / TWITTER</span>
-            </a>
-            <a href="https://t.me/ElienusMuskius" target="_blank" rel="noreferrer"
-              className="text-white/35 hover:text-[#00ff41] transition-colors flex flex-col items-center gap-2">
-              <SiTelegram size={22} />
-              <span className="font-mono-alien text-xs">TELEGRAM</span>
-            </a>
-            <a href="https://dexscreener.com/solana/5gcxz9mq2fx3kfjzcqd9aaa8o1c8qjlsrasqs4ikmk7t"
-              target="_blank" rel="noreferrer"
-              className="text-white/35 hover:text-[#00ff41] transition-colors flex flex-col items-center gap-2">
-              <span className="font-alien text-xl">◈</span>
-              <span className="font-mono-alien text-xs">DEXSCREENER</span>
-            </a>
+        <Stars />
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex items-center gap-4 mb-10">
+            <div className="font-alien font-black text-3xl md:text-4xl text-white">SOCIALS</div>
+            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
           </div>
 
-          <div className="border border-[rgba(0,255,65,0.18)] inline-block px-6 py-3 mb-8">
-            <p className="font-mono-alien text-xs text-[#00ff41]/55 tracking-widest">
-              TRANSMISSION TERMINATED — THE TRUTH IS OUT THERE
+          <div className="grid sm:grid-cols-3 gap-4 max-w-2xl mx-auto mb-12">
+            {[
+              {
+                icon: <SiX size={32} />,
+                label: "X / Twitter",
+                handle: "@ElienusMuskius",
+                url: "https://x.com/ElienusMuskius",
+                desc: "Follow for updates, memes, and alien intelligence drops."
+              },
+              {
+                icon: <SiTelegram size={32} />,
+                label: "Telegram",
+                handle: "t.me/ElienusMuskius",
+                url: "https://t.me/ElienusMuskius",
+                desc: "Join the community. Chat with the awakened."
+              },
+              {
+                icon: <span className="font-alien text-3xl">◈</span>,
+                label: "Dexscreener",
+                handle: "Live Chart",
+                url: DEX_URL,
+                desc: "Track price action and volume in real time."
+              },
+            ].map((item, i) => (
+              <motion.a key={i} href={item.url} target="_blank" rel="noreferrer"
+                variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="flex flex-col items-center text-center p-6 border border-[rgba(0,255,65,0.18)] bg-[rgba(0,255,65,0.04)] hover:bg-[rgba(0,255,65,0.08)] hover:border-[rgba(0,255,65,0.4)] transition-all group">
+                <div className="text-[#00ff41]/70 group-hover:text-[#00ff41] transition-colors mb-3">{item.icon}</div>
+                <div className="font-alien text-sm font-bold text-white mb-1">{item.label}</div>
+                <div className="font-mono-alien text-[10px] text-[#00ff41]/60 mb-3">{item.handle}</div>
+                <p className="font-body text-white/45 text-xs leading-relaxed">{item.desc}</p>
+              </motion.a>
+            ))}
+          </div>
+
+          {/* Closing CTA */}
+          <div className="border border-[rgba(0,255,65,0.3)] bg-[rgba(0,255,65,0.05)] p-8 text-center max-w-2xl mx-auto">
+            <div className="font-cinzel font-black text-3xl text-[#00ff41] mb-3"
+              style={{ textShadow: "0 0 20px rgba(0,255,65,0.4)" }}>
+              $ELIENUS
+            </div>
+            <p className="font-body text-white/60 text-base mb-5 leading-relaxed">
+              He told you he was an alien. He told you he was 5,000 years old.<br />
+              <span className="text-[#00ff41]/80">The question was never whether it's true.<br />The question is: are you holding?</span>
             </p>
+            <a href={BUY_URL} target="_blank" rel="noreferrer"
+              className="inline-block font-alien text-sm tracking-widest bg-[#00ff41] text-black px-12 py-4 font-black hover:bg-white transition-colors pulse-glow">
+              BUY $ELIENUS
+            </a>
           </div>
+        </div>
+      </section>
 
-          <p className="font-mono-alien text-white/18 text-xs mb-4">© 2026 ELIENUS MUSKIUS</p>
-
-          <p className="font-body text-white/18 text-xs max-w-lg mx-auto leading-relaxed">
-            $ELIENUS is a memecoin on the Solana network. This site is satirical creative fiction for entertainment purposes.
-            Not financial advice. Do your own research. Crypto investments carry significant risk.
+      {/* ══ FOOTER ══ */}
+      <footer className="border-t border-[rgba(0,255,65,0.12)] bg-[#030603] py-8 text-center relative">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-wrap justify-center gap-6 mb-5">
+            <a href="https://x.com/ElienusMuskius" target="_blank" rel="noreferrer" className="text-white/30 hover:text-[#00ff41] transition-colors"><SiX size={18} /></a>
+            <a href="https://t.me/ElienusMuskius" target="_blank" rel="noreferrer" className="text-white/30 hover:text-[#00ff41] transition-colors"><SiTelegram size={18} /></a>
+            <a href={DEX_URL} target="_blank" rel="noreferrer" className="font-alien text-[10px] text-white/30 hover:text-[#00ff41] transition-colors tracking-widest">DEXSCREENER</a>
+            <a href={BUY_URL} target="_blank" rel="noreferrer" className="font-alien text-[10px] text-white/30 hover:text-[#00ff41] transition-colors tracking-widest">PUMP.FUN</a>
+          </div>
+          <p className="font-mono-alien text-[10px] text-white/18 tracking-widest mb-2">
+            © 2026 ELIENUS MUSKIUS — ZETA RETICULI // SOLANA PROTOCOL
+          </p>
+          <p className="font-body text-white/15 text-xs max-w-md mx-auto leading-relaxed">
+            $ELIENUS is a satirical memecoin. Not financial advice. Crypto carries risk. Do your own research.
           </p>
         </div>
       </footer>
