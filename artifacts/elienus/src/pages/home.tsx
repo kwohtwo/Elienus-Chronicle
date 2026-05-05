@@ -551,23 +551,6 @@ function Socials() {
           ))}
         </div>
 
-        {/* Art strip — all 9 images in a scrolling grid */}
-        <div className="mb-12 grid grid-cols-3 gap-2 sm:grid-cols-5" style={{ height: "260px" }}>
-          {[
-            { src: imgFace, label: "THE FACE" },
-            { src: imgElioon, label: "CLASSIFIED" },
-            { src: imgEloniusss, label: "KING" },
-            { src: imgElon, label: "ARRIVAL" },
-            { src: imgPortrait, label: "THE PORTRAIT" },
-            { src: imgLonss, label: "DOMINATION" },
-            { src: imgElingg, label: "SIGNAL" },
-            { src: imgFull, label: "THE ENTITY" },
-            { src: imgAlt, label: "NOT FROM EARTH" },
-          ].slice(0, 5).map((img) => (
-            <ArtBox key={img.label} src={img.src} label={img.label} />
-          ))}
-        </div>
-
         <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
           className="mx-auto max-w-xl overflow-hidden border border-[#00ff41]/30 bg-[#00ff41]/5 p-8 text-center md:p-12">
           <h3 className="mb-2 font-serif text-4xl font-black text-[#00ff41]"
