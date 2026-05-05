@@ -482,9 +482,10 @@ function Buy() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_20%_60%,rgba(0,60,20,0.16),transparent_55%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
-        <div className="mb-10 flex items-center gap-4">
-          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">HOW TO BUY</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+        <div className="mb-10 text-center">
+          <h2 className="font-serif text-4xl font-black tracking-[0.15em] text-white md:text-6xl"
+            style={{ textShadow: "0 0 40px rgba(0,255,65,0.25)" }}>HOW TO BUY</h2>
+          <div className="mx-auto mt-4 h-0.5 w-16 bg-[#00ff41]" style={{ boxShadow: "0 0 8px rgba(0,255,65,0.6)" }} />
         </div>
 
         <div className="mx-auto max-w-xl space-y-3">
@@ -530,9 +531,10 @@ function Socials() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_100%,rgba(0,255,65,0.1),transparent_70%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
-        <div className="mb-10 flex items-center gap-4">
-          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">SOCIALS</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+        <div className="mb-10 text-center">
+          <h2 className="font-serif text-4xl font-black tracking-[0.15em] text-white md:text-6xl"
+            style={{ textShadow: "0 0 40px rgba(0,255,65,0.25)" }}>SOCIALS</h2>
+          <div className="mx-auto mt-4 h-0.5 w-16 bg-[#00ff41]" style={{ boxShadow: "0 0 8px rgba(0,255,65,0.6)" }} />
         </div>
 
         <div className="mx-auto mb-12 grid max-w-3xl gap-4 sm:grid-cols-3">
