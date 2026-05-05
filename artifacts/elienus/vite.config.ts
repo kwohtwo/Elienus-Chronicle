@@ -16,6 +16,5 @@ export default defineConfig({
       "@assets": path.resolve(import.meta.dirname, "src/assets"),
       "@": path.resolve(import.meta.dirname, "src"),
     },
-    },
   },
 });
