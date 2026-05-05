@@ -145,7 +145,7 @@ function Nav() {
   useEffect(() => {
     const obs = new IntersectionObserver(
       (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
-      { threshold: 0.2, rootMargin: "-72px 0px 0px 0px" }
+      { threshold: 0.05, rootMargin: "-72px 0px 0px 0px" }
     );
     tabs.forEach(({ id }) => { const el = document.getElementById(id); if (el) obs.observe(el); });
     return () => obs.disconnect();
