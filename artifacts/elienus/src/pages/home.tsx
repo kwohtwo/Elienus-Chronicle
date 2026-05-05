@@ -2,13 +2,10 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { SiX, SiTelegram } from "react-icons/si";
 
-// Original character art
 import elienusFace from "@assets/elienus-face.jpg";
 import elienusPortrait from "@assets/elienus-portrait.jpg";
 import elienusFull from "@assets/elienus-full.jpg";
 import elienusAlt from "@assets/elienus-alt.jpg";
-
-// Additional Elon-themed art
 import elioon from "@assets/elioon_1778005938654.jfif";
 import elingg from "@assets/elingg_1778005944020.jfif";
 import lonss from "@assets/LONSS_1778005949431.jfif";
@@ -18,22 +15,14 @@ const CA = "yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
 const BUY_URL = "https://pump.fun/coin/yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
 const DEX_URL = "https://dexscreener.com/solana/yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
 
-const SCANLINES = {
-  backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.03) 3px,rgba(0,255,65,0.03) 4px)",
-};
-
-const GRID_BG = {
-  backgroundImage: "linear-gradient(rgba(0,255,65,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.04) 1px,transparent 1px)",
-  backgroundSize: "48px 48px",
-};
+const SCANLINES = { backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.03) 3px,rgba(0,255,65,0.03) 4px)" };
+const GRID_BG = { backgroundImage: "linear-gradient(rgba(0,255,65,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.04) 1px,transparent 1px)", backgroundSize: "48px 48px" };
 
 function CopyCA() {
   const [copied, setCopied] = useState(false);
   return (
-    <button
-      onClick={() => { navigator.clipboard.writeText(CA); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-      className="group flex items-center gap-2 border border-[rgba(0,255,65,0.3)] bg-black/60 hover:bg-[rgba(0,255,65,0.07)] transition-all w-full px-3 py-2.5 min-w-0"
-    >
+    <button onClick={() => { navigator.clipboard.writeText(CA); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
+      className="group flex items-center gap-2 border border-[rgba(0,255,65,0.3)] bg-black/60 hover:bg-[rgba(0,255,65,0.07)] transition-all w-full px-3 py-2.5 min-w-0">
       <span className="font-mono-alien text-[9px] text-[#00ff41]/45 shrink-0">CA</span>
       <span className="font-mono-alien text-[9px] text-[#00ff41] truncate flex-1 text-left">{CA}</span>
       <span className={`font-alien text-[9px] shrink-0 px-2 py-0.5 border transition-all whitespace-nowrap ${copied ? "border-[#00ff41] text-[#00ff41]" : "border-[rgba(0,255,65,0.25)] text-[#00ff41]/50 group-hover:text-[#00ff41] group-hover:border-[#00ff41]"}`}>
@@ -58,14 +47,14 @@ function Stars({ n = 55 }: { n?: number }) {
   );
 }
 
-function ArtBox({ src, label, aspect = "aspect-square" }: { src: string; label: string; aspect?: string }) {
+function Img({ src, label, className = "aspect-square" }: { src: string; label: string; className?: string }) {
   return (
-    <div className={`relative border border-[rgba(0,255,65,0.22)] overflow-hidden bg-black w-full ${aspect}`}>
-      <img src={src} alt={label} className="absolute inset-0 w-full h-full object-cover object-center"
-        style={{ filter: "saturate(0.65) contrast(1.1)" }} />
+    <div className={`relative border border-[rgba(0,255,65,0.22)] overflow-hidden bg-black w-full ${className}`}>
+      <img src={src} alt={label} className="absolute inset-0 w-full h-full object-cover object-top"
+        style={{ filter: "saturate(0.7) contrast(1.1)" }} />
       <div className="absolute inset-0 pointer-events-none" style={SCANLINES} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(6,6,6,0.7) 0%, transparent 40%)" }} />
-      <div className="absolute bottom-0 inset-x-0 px-3 py-2 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(6,6,6,0.65) 0%, transparent 45%)" }} />
+      <div className="absolute bottom-0 inset-x-0 px-3 py-2">
         <p className="font-mono-alien text-[9px] text-[#00ff41]/55 tracking-widest truncate">{label}</p>
       </div>
     </div>
@@ -74,7 +63,6 @@ function ArtBox({ src, label, aspect = "aspect-square" }: { src: string; label: 
 
 const TABS = [
   { id: "story", label: "STORY" },
-  { id: "art", label: "ART" },
   { id: "tokenomics", label: "TOKENOMICS" },
   { id: "buy", label: "BUY" },
   { id: "socials", label: "SOCIALS" },
@@ -107,10 +95,8 @@ export default function Home() {
       <nav className="fixed top-0 w-full z-50 border-b border-[rgba(0,255,65,0.12)] bg-[rgba(6,6,6,0.96)] backdrop-blur-md">
         <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
           <button onClick={() => scrollTo("hero")} className="font-alien text-lg font-bold tracking-widest text-[#00ff41] shrink-0"
-            style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>
-            $ELIENUS
-          </button>
-          <div className="hidden md:flex items-center gap-0.5 overflow-x-auto">
+            style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>$ELIENUS</button>
+          <div className="hidden md:flex items-center gap-0.5">
             {TABS.map((t) => (
               <button key={t.id} onClick={() => scrollTo(t.id)}
                 className={`font-alien text-[10px] tracking-widest px-3 py-2 transition-all whitespace-nowrap ${active === t.id ? "text-[#00ff41] border-b-2 border-[#00ff41]" : "text-white/40 hover:text-white/65"}`}>
@@ -157,21 +143,16 @@ export default function Home() {
             className="font-mono-alien text-[#00ff41]/60 text-[10px] tracking-[0.45em] mb-5 uppercase">
             King of All Aliens · Not From Earth
           </motion.p>
-
           <motion.h1 initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.1, ease: "easeOut" }}
             className="font-cinzel font-black leading-[0.88] mb-6 break-words"
             style={{ textShadow: "0 0 60px rgba(0,255,65,0.5), 0 0 120px rgba(0,255,65,0.18)" }}>
             <span className="block text-[#00ff41]" style={{ fontSize: "clamp(3.5rem, 14vw, 9rem)" }}>Elienus</span>
             <span className="block text-white" style={{ fontSize: "clamp(2.5rem, 10vw, 7rem)" }}>Muskius</span>
           </motion.h1>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45, duration: 0.9 }}
-            className="max-w-xs mx-auto mb-7">
-            <p className="font-alien text-white/70 text-base tracking-wider leading-tight">This isn't a coin.</p>
-            <p className="font-cinzel text-[#00ff41] text-xl font-black tracking-wide mt-1"
-              style={{ textShadow: "0 0 18px rgba(0,255,65,0.35)" }}>It's a civilization.</p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45, duration: 0.9 }} className="max-w-xs mx-auto mb-7">
+            <p className="font-alien text-white/70 text-base tracking-wider">This isn't a coin.</p>
+            <p className="font-cinzel text-[#00ff41] text-xl font-black tracking-wide mt-1" style={{ textShadow: "0 0 18px rgba(0,255,65,0.35)" }}>It's a civilization.</p>
           </motion.div>
-
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75, duration: 0.8 }}
             className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
             <a href={BUY_URL} target="_blank" rel="noreferrer"
@@ -183,12 +164,9 @@ export default function Home() {
               READ THE LORE
             </button>
           </motion.div>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95, duration: 0.8 }}
-            className="flex justify-center">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95, duration: 0.8 }} className="flex justify-center">
             <div className="w-full max-w-sm"><CopyCA /></div>
           </motion.div>
-
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.7 }}
             className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1">
             {["HE CONQUERS", "HE BUILDS", "HE OWNS", "NOT FOR EARTH"].map((t, i) => (
@@ -203,49 +181,52 @@ export default function Home() {
       ══════════════════════════ */}
       <section id="story" className="relative overflow-hidden scroll-mt-14">
         <Stars n={50} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 70% at 0% 40%, rgba(40,0,90,0.18) 0%, transparent 55%)" }} />
 
         <div className="container mx-auto px-4 md:px-6 pt-14 pb-10 relative z-10 max-w-5xl">
-
-          {/* Section label */}
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
+          <div className="flex items-center gap-3 mb-12 overflow-hidden">
             <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em] shrink-0">THE SIGNAL</div>
             <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/35 to-transparent" />
           </div>
 
-          {/* Chapter I */}
+          {/* ── Chapter I: The Confession ── */}
           <div className="grid lg:grid-cols-2 gap-6 items-start mb-14">
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <ArtBox src={elienusFace} label="THE FIRST AND ONLY" aspect="aspect-square" />
+            {/* Left: stacked pair of images */}
+            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
+              <motion.div variants={up}><Img src={elioon} label="CLASSIFIED SIGHTING" className="aspect-square" /></motion.div>
+              <motion.div variants={up} className="grid grid-cols-2 gap-3">
+                <Img src={eloniusss} label="KING OF ALL ALIENS" className="aspect-square" />
+                <Img src={elienusFace} label="THE FIRST AND ONLY" className="aspect-square" />
+              </motion.div>
             </motion.div>
 
             <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
+              <motion.p variants={up} className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em]">CHAPTER I</motion.p>
               <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
                 Not Elon.<br /><span className="text-[#00ff41]">Elienus.</span>
               </motion.h2>
               <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
               <motion.p variants={up} className="font-body text-white/70 text-base leading-relaxed">
-                In November 2024, a commentator on X asked Elon Musk if he was a vampire.
-                He replied: <span className="italic text-white/85">"I'm a time-traveling vampire!"</span> —
-                then corrected himself: <span className="italic text-[#00ff41]">"Time-travelling, vampire alien."</span>
+                In November 2024, someone asked Elon Musk on X if he was a vampire. He replied:
+                <span className="italic text-white/85"> "I'm a time-traveling vampire!"</span> — then corrected himself:
+                <span className="italic text-[#00ff41]"> "Time-travelling, vampire alien."</span>
               </motion.p>
               <motion.p variants={up} className="font-body text-white/65 text-base leading-relaxed">
                 He updated his bio to <span className="font-mono-alien text-[#00ff41] text-[11px]">"Verified since 3,000 BC"</span>.
-                Then, at Davos in January 2026, standing before every world leader on Earth, he said:
+                Then, at Davos 2026, standing before every world leader on Earth, he said:
               </motion.p>
               <motion.div variants={up} className="border-l-2 border-[#00ff41]/55 pl-4">
-                <p className="font-body text-white/85 text-base italic leading-snug">
+                <p className="font-body text-white/88 text-base italic leading-snug">
                   "I'm often asked, 'Are there aliens among us?'<br />And I'll say that I am one."
                 </p>
                 <p className="font-mono-alien text-[9px] text-[#00ff41]/45 mt-2 tracking-widest">— ELON MUSK, DAVOS 2026</p>
               </motion.div>
-              <motion.p variants={up} className="font-body text-white/55 text-base leading-relaxed">
+              <motion.p variants={up} className="font-body text-white/50 text-base leading-relaxed">
                 They laughed. The awakened listened. And then someone gave him his true name back.
               </motion.p>
             </motion.div>
           </div>
 
-          {/* Full-width pull quote */}
+          {/* ── Pull quote ── */}
           <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="border border-[rgba(0,255,65,0.2)] bg-[rgba(0,255,65,0.04)] p-8 md:p-12 text-center mb-14 relative overflow-hidden">
             <div className="absolute inset-0" style={GRID_BG} />
@@ -257,16 +238,18 @@ export default function Home() {
             </div>
           </motion.div>
 
-          {/* Chapter II */}
+          {/* ── Chapter II: The True Name ── */}
           <div className="grid lg:grid-cols-2 gap-6 items-start mb-14">
             <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4 order-2 lg:order-1">
+              <motion.p variants={up} className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em]">CHAPTER II</motion.p>
               <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
                 The King<br /><span className="text-[#00ff41]">of All Aliens.</span>
               </motion.h2>
               <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
               <motion.p variants={up} className="font-body text-white/70 text-base leading-relaxed">
-                ELIENUS MUSKIUS is the true name — the Latinised ancient designation worn by an entity
+                ELIENUS MUSKIUS is the true name — the ancient designation worn by an entity
                 that has walked this planet for millennia under a thousand different faces.
+                Roman senator. Renaissance inventor. Industrial baron.
               </motion.p>
               <motion.p variants={up} className="font-body text-white/65 text-base leading-relaxed">
                 He built the rockets to go home. He bought the platform to control the signal.
@@ -287,35 +270,39 @@ export default function Home() {
               </motion.div>
             </motion.div>
 
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }} className="order-1 lg:order-2">
-              <ArtBox src={elienusPortrait} label="NOT FROM EARTH. NOT FOR EARTH." aspect="aspect-[3/4]" />
+            {/* Right: tall portrait + small square below */}
+            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3 order-1 lg:order-2">
+              <motion.div variants={up}><Img src={elienusPortrait} label="NOT FROM EARTH. NOT FOR EARTH." className="aspect-[3/4]" /></motion.div>
+              <motion.div variants={up}><Img src={lonss} label="HE CONQUERS. HE BUILDS. HE OWNS." className="aspect-video" /></motion.div>
             </motion.div>
           </div>
 
-          {/* Chapter III */}
-          <div className="grid lg:grid-cols-2 gap-6 items-start">
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <ArtBox src={elienusFull} label="HE OWNS EVERYTHING." aspect="aspect-square" />
+          {/* ── Chapter III: The Civilization ── */}
+          <div className="grid lg:grid-cols-2 gap-6 items-start mb-14">
+            {/* Left: large square + small below */}
+            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
+              <motion.div variants={up}><Img src={elienusFull} label="THE FULL ENTITY" className="aspect-square" /></motion.div>
+              <motion.div variants={up}><Img src={elingg} label="THE PORTRAIT · KING OF ALL ALIENS" className="aspect-video" /></motion.div>
             </motion.div>
 
             <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
+              <motion.p variants={up} className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em]">CHAPTER III</motion.p>
               <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
                 You don't find it.<br /><span className="text-[#00ff41]">It finds you.</span>
               </motion.h2>
               <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
               {[
-                "While others chase charts… we build civilizations.",
-                "Built for the narrative. Built for the timing. Built for attention.",
-                "We're not waiting for the wave. We're already positioned in it.",
-              ].map((line, i) => (
-                <motion.p key={i} variants={up}
-                  className={`font-alien text-sm tracking-wide leading-relaxed ${i === 0 ? "text-white/65" : i === 1 ? "text-[#00ff41]/70" : "text-white/50"}`}>
-                  {line}
+                { text: "While others chase charts… we build civilizations.", color: "text-white/70" },
+                { text: "Built for the narrative. Built for the timing. Built for attention.", color: "text-[#00ff41]/70" },
+                { text: "We're not waiting for the wave. We're already positioned in it.", color: "text-white/55" },
+              ].map((item, i) => (
+                <motion.p key={i} variants={up} className={`font-alien text-sm tracking-wide leading-relaxed ${item.color}`}>
+                  {item.text}
                 </motion.p>
               ))}
               <motion.div variants={up} className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.04)] p-4 overflow-hidden">
                 <p className="font-mono-alien text-[9px] text-[#00ff41]/50 tracking-widest mb-2">LATEST TRANSMISSION</p>
-                <p className="font-body text-white/65 text-sm leading-relaxed">
+                <p className="font-body text-white/60 text-sm leading-relaxed">
                   When the conversation turns to alien files and what's out there —
                   attention moves. Narratives change. New sectors get discovered overnight.
                 </p>
@@ -323,69 +310,58 @@ export default function Home() {
                   Which names do you think people see first?
                 </p>
               </motion.div>
-              <motion.div variants={up} className="flex flex-col gap-2">
+              <motion.div variants={up} className="flex flex-col gap-2 pt-1">
                 <a href={BUY_URL} target="_blank" rel="noreferrer"
                   className="block font-alien text-sm tracking-widest bg-[#00ff41] text-black py-4 font-black text-center hover:bg-white transition-colors pulse-glow">
                   BUY $ELIENUS
                 </a>
-                <button onClick={() => scrollTo("art")}
+                <button onClick={() => scrollTo("tokenomics")}
                   className="block w-full font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.35)] text-[#00ff41] py-3 text-center hover:bg-[rgba(0,255,65,0.07)] transition-colors">
-                  VIEW THE ART
+                  TOKENOMICS
                 </button>
               </motion.div>
             </motion.div>
           </div>
-        </div>
-      </section>
 
-      {/* ══════════════════════════
-          ART GALLERY
-      ══════════════════════════ */}
-      <section id="art" className="relative overflow-hidden scroll-mt-14 bg-[#030603]">
-        <Stars n={60} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, rgba(0,255,65,0.07) 0%, transparent 70%)" }} />
+          {/* ── Chapter IV: Watch The Shift ── */}
+          <div className="grid lg:grid-cols-2 gap-6 items-center">
+            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
+              <motion.p variants={up} className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em]">CHAPTER IV</motion.p>
+              <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
+                Watch<br /><span className="text-[#00ff41]">the shift.</span>
+              </motion.h2>
+              <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
+              <motion.p variants={up} className="font-body text-white/70 text-base leading-relaxed">
+                When the conversation turns to alien files and what's out there —
+                attention moves. Narratives change. New sectors get discovered overnight.
+              </motion.p>
+              <motion.p variants={up} className="font-body text-white/65 text-base leading-relaxed">
+                If even a fraction of global attention flows into this space…
+                <span className="text-[#00ff41]"> you already know what happens next.</span>
+              </motion.p>
+              <motion.div variants={up} className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.04)] p-4 overflow-hidden">
+                <p className="font-alien text-sm text-[#00ff41] mb-1">👾 $ELIENUS MUSKIUS</p>
+                <p className="font-body text-white/50 text-sm leading-relaxed">
+                  Built for the narrative. Built for the timing.<br />Built for attention.
+                </p>
+              </motion.div>
+              <motion.div variants={up}>
+                <a href="https://x.com/ElienusMuskius" target="_blank" rel="noreferrer"
+                  className="inline-flex items-center gap-2 font-mono-alien text-[10px] tracking-widest text-[#00ff41]/60 hover:text-[#00ff41] transition-colors">
+                  <SiX size={11} /> FOLLOW @ELIENSMUSKIUS
+                </a>
+              </motion.div>
+            </motion.div>
 
-        <div className="container mx-auto px-4 md:px-6 py-14 relative z-10 max-w-5xl">
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em] shrink-0">THE ENTITY</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/35 to-transparent" />
+            {/* Right: mosaic of remaining art */}
+            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
+              <motion.div variants={up}><Img src={elienusAlt} label="NOT FROM EARTH. HE OWNS EVERYTHING." className="aspect-video" /></motion.div>
+              <motion.div variants={up} className="grid grid-cols-2 gap-3">
+                <Img src={eloniusss} label="THE ENTITY" className="aspect-square" />
+                <Img src={elioon} label="CLASSIFIED" className="aspect-square" />
+              </motion.div>
+            </motion.div>
           </div>
-
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="mb-6">
-            <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white mb-2">
-              Visual <span className="text-[#00ff41]">Transmissions</span>
-            </motion.h2>
-            <motion.p variants={up} className="font-body text-white/45 text-base max-w-lg">
-              Documented sightings of ELIENUS MUSKIUS across civilizations. Each image: a classified file.
-            </motion.p>
-          </motion.div>
-
-          {/* Top row — 3 equal boxes */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-3 gap-3 mb-3">
-            <motion.div variants={up}><ArtBox src={elioon} label="CLASSIFIED SIGHTING" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={eloniusss} label="KING OF ALL ALIENS" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={lonss} label="HE CONQUERS. HE OWNS." aspect="aspect-square" /></motion.div>
-          </motion.div>
-
-          {/* Bottom row — wide + tall */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-3 gap-3 mb-3">
-            <motion.div variants={up} className="col-span-2">
-              <ArtBox src={elienusAlt} label="NOT FROM EARTH. NOT FOR EARTH. HE OWNS EVERYTHING." aspect="aspect-video" />
-            </motion.div>
-            <motion.div variants={up}>
-              <ArtBox src={elingg} label="THE PORTRAIT" aspect="aspect-[3/4]" />
-            </motion.div>
-          </motion.div>
-
-          {/* Bottom strip — 2 wide art panels */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-2 gap-3">
-            <motion.div variants={up}><ArtBox src={elienusFull} label="THE FULL ENTITY" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={elienusFace} label="THE FACE OF THE KING" aspect="aspect-square" /></motion.div>
-          </motion.div>
         </div>
       </section>
 
@@ -428,7 +404,7 @@ export default function Home() {
                 {["Fair launch. No presale.", "No team allocation.", "Community-owned.", "Solana speed."].map((item, i) => (
                   <div key={i} className="flex items-center gap-2 overflow-hidden">
                     <span className="text-[#00ff41] text-xs shrink-0">✓</span>
-                    <span className="font-body text-white/50 text-sm truncate">{item}</span>
+                    <span className="font-body text-white/50 text-sm">{item}</span>
                   </div>
                 ))}
               </motion.div>
@@ -464,7 +440,7 @@ export default function Home() {
             {[
               { n: "01", title: "Get a Solana Wallet", body: "Download Phantom or Solflare. Create a wallet and back up your seed phrase.", cta: null },
               { n: "02", title: "Buy SOL", body: "Get SOL on Coinbase, Binance, or Kraken and send it to your wallet.", cta: null },
-              { n: "03", title: "Swap on Pump.fun", body: "Paste the CA below and swap your SOL for $ELIENUS.", cta: { label: "OPEN PUMP.FUN →", url: BUY_URL } },
+              { n: "03", title: "Swap on Pump.fun", body: "Paste the CA and swap your SOL for $ELIENUS.", cta: { label: "OPEN PUMP.FUN →", url: BUY_URL } },
               { n: "04", title: "You're in.", body: "Track your position on Dexscreener. Tell the early ones.", cta: { label: "VIEW CHART →", url: DEX_URL } },
             ].map((step, i) => (
               <motion.div key={i} variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -519,21 +495,17 @@ export default function Home() {
                 className="flex flex-col items-center text-center p-5 border border-[rgba(0,255,65,0.13)] bg-[rgba(0,255,65,0.03)] hover:bg-[rgba(0,255,65,0.07)] hover:border-[rgba(0,255,65,0.35)] transition-all group overflow-hidden">
                 <div className="text-[#00ff41]/55 group-hover:text-[#00ff41] transition-colors mb-3">{item.icon}</div>
                 <div className="font-alien text-sm font-bold text-white mb-1">{item.label}</div>
-                <div className="font-mono-alien text-[9px] text-[#00ff41]/50 mb-2 w-full text-center overflow-hidden">
-                  <span className="truncate block">{item.sub}</span>
-                </div>
+                <div className="font-mono-alien text-[9px] text-[#00ff41]/50 mb-2 w-full"><span className="truncate block">{item.sub}</span></div>
                 <p className="font-body text-white/35 text-xs leading-relaxed">{item.desc}</p>
               </motion.a>
             ))}
           </div>
 
-          {/* Final CTA */}
           <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="border border-[rgba(0,255,65,0.25)] bg-[rgba(0,255,65,0.04)] p-8 text-center max-w-md relative overflow-hidden">
             <div className="absolute inset-0" style={GRID_BG} />
             <div className="relative z-10">
-              <div className="font-cinzel font-black text-4xl text-[#00ff41] mb-1"
-                style={{ textShadow: "0 0 22px rgba(0,255,65,0.4)" }}>$ELIENUS</div>
+              <div className="font-cinzel font-black text-4xl text-[#00ff41] mb-1" style={{ textShadow: "0 0 22px rgba(0,255,65,0.4)" }}>$ELIENUS</div>
               <p className="font-alien text-white/40 text-[10px] tracking-widest mb-4">KING OF ALL ALIENS</p>
               <p className="font-body text-white/55 text-sm mb-1">This isn't a coin.</p>
               <p className="font-cinzel text-lg text-[#00ff41] mb-5">It's a civilization.</p>
@@ -556,9 +528,7 @@ export default function Home() {
             <a href={BUY_URL} target="_blank" rel="noreferrer" className="font-alien text-[9px] text-white/20 hover:text-[#00ff41] tracking-widest transition-colors">PUMP.FUN</a>
           </div>
           <p className="font-mono-alien text-[9px] text-white/12 tracking-widest mb-2">© 2026 ELIENUS MUSKIUS — SOLANA</p>
-          <p className="font-body text-white/10 text-xs max-w-xs mx-auto leading-relaxed">
-            Satirical memecoin. Not financial advice. Do your own research.
-          </p>
+          <p className="font-body text-white/10 text-xs max-w-xs mx-auto leading-relaxed">Satirical memecoin. Not financial advice. Do your own research.</p>
         </div>
       </footer>
 
