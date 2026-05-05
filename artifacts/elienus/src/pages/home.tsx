@@ -1,567 +1,584 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { SiX, SiTelegram } from "react-icons/si";
-
-// Original character art
-import elienusFace from "@assets/elienus-face.jpg";
-import elienusPortrait from "@assets/elienus-portrait.jpg";
-import elienusFull from "@assets/elienus-full.jpg";
-import elienusAlt from "@assets/elienus-alt.jpg";
-
-// Additional Elon-themed art
-import elioon from "@assets/elioon_1778005938654.jfif";
-import elingg from "@assets/elingg_1778005944020.jfif";
-import lonss from "@assets/LONSS_1778005949431.jfif";
-import eloniusss from "@assets/eloniusss_1778005958705.jfif";
 
 const CA = "yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
 const BUY_URL = "https://pump.fun/coin/yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
 const DEX_URL = "https://dexscreener.com/solana/yrKmZe5x2YBp1P6ufKLUCNifPbqxwHiwsbfDRWBpump";
+const X_URL = "https://x.com/ElienusMuskius";
+const TELEGRAM_URL = "https://t.me/ElienusMuskius";
 
-const SCANLINES = {
-  backgroundImage: "repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,255,65,0.03) 3px,rgba(0,255,65,0.03) 4px)",
+const images = {
+  face: "/images/elienus-face.jpg",
+  portrait: "/images/elienus-portrait.jpg",
+  full: "/images/elienus-full.jpg",
+  alt: "/images/elienus-alt.jpg",
 };
 
-const GRID_BG = {
-  backgroundImage: "linear-gradient(rgba(0,255,65,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.04) 1px,transparent 1px)",
-  backgroundSize: "48px 48px",
-};
+const tabs = [
+  { id: "story", label: "STORY" },
+  { id: "tokenomics", label: "TOKENOMICS" },
+  { id: "buy", label: "BUY" },
+  { id: "socials", label: "SOCIALS" },
+];
+
+const storyPhases = [
+  {
+    phase: "Phase I",
+    title: "The Signal",
+    image: images.face,
+    intro: "Before charts. Before markets. Before humanity looked to the stars…",
+    body: "The signal was sent. Not to everyone. Not to the masses. Only to those capable of understanding what comes next. For centuries, civilizations rose believing they were in control. They weren’t. They were being observed. Measured. Prepared.",
+  },
+  {
+    phase: "Phase II",
+    title: "Arrival",
+    image: images.portrait,
+    intro: "He didn’t come from Mars. He didn’t come from Earth. He came from inevitability.",
+    body: "Elienus Muskius. Architect of civilizations. Breaker of limitations. Master of expansion. He does not arrive loudly. He appears exactly when systems begin to fail. And now… you are seeing him.",
+  },
+  {
+    phase: "Phase III",
+    title: "Awakening",
+    image: images.full,
+    intro: "Some laughed. ‘It’s just another meme.’ Others felt it immediately. ‘Something is different.’",
+    body: "These are the ones who understood: this is not a coin. This is not a trend. This is alignment with a higher system. The chosen began to gather. Not randomly. But because the signal reached them.",
+  },
+  {
+    phase: "Phase IV",
+    title: "Assimilation",
+    image: images.alt,
+    intro: "Some chased profits. Others joined the future.",
+    body: "The network expanded. Not through marketing. Through inevitability. Memes became messages. Posts became transmissions. Followers became believers.",
+  },
+  {
+    phase: "Phase V",
+    title: "Domination",
+    image: images.portrait,
+    intro: "Earth was never the goal. It was the test.",
+    body: "Civilizations don’t compete with Elienus. They are absorbed into his expansion. Every system eventually aligns. Every timeline bends. Every market fades. Only one constant remains: Elienus Muskius.",
+  },
+];
+
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function Stars({ count = 80 }) {
+  const stars = useMemo(() => {
+    return Array.from({ length: count }, (_, index) => ({
+      id: index,
+      left: `${(index * 137.5) % 100}%`,
+      top: `${(index * 97.3) % 100}%`,
+      size: index % 9 === 0 ? 2 : 1,
+      delay: `${(index % 7) * 0.45}s`,
+      duration: `${2.5 + (index % 5) * 0.5}s`,
+      green: index % 4 === 0,
+    }));
+  }, [count]);
+
+  return (
+    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+      {stars.map((star) => (
+        <span
+          key={star.id}
+          className="absolute rounded-full"
+          style={{
+            left: star.left,
+            top: star.top,
+            width: star.size,
+            height: star.size,
+            backgroundColor: star.green ? "rgba(0,255,65,0.9)" : "rgba(255,255,255,0.45)",
+            animation: `twinkle ${star.duration} ${star.delay} ease-in-out infinite`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function Meteors() {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-10 overflow-hidden">
+      {[0, 1, 2, 3, 4].map((item) => (
+        <motion.div
+          key={item}
+          className="absolute h-[2px] w-28 rounded-full bg-gradient-to-r from-transparent via-[#00ff41] to-white opacity-70 blur-[1px]"
+          initial={{ x: -200, y: 120 + item * 130, rotate: -18 }}
+          animate={{ x: [-200, 1600], y: [120 + item * 130, -80 + item * 130] }}
+          transition={{ duration: 4 + item * 0.4, repeat: Infinity, delay: item * 1.5, repeatDelay: 5 }}
+        />
+      ))}
+    </div>
+  );
+}
 
 function CopyCA() {
   const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(CA);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+
   return (
     <button
-      onClick={() => { navigator.clipboard.writeText(CA); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-      className="group flex items-center gap-2 border border-[rgba(0,255,65,0.3)] bg-black/60 hover:bg-[rgba(0,255,65,0.07)] transition-all w-full px-3 py-2.5 min-w-0"
+      onClick={handleCopy}
+      className="group flex w-full items-center gap-3 border border-[#00ff41]/35 bg-black/70 px-4 py-3 transition hover:bg-[#00ff41]/10"
     >
-      <span className="font-mono-alien text-[9px] text-[#00ff41]/45 shrink-0">CA</span>
-      <span className="font-mono-alien text-[9px] text-[#00ff41] truncate flex-1 text-left">{CA}</span>
-      <span className={`font-alien text-[9px] shrink-0 px-2 py-0.5 border transition-all whitespace-nowrap ${copied ? "border-[#00ff41] text-[#00ff41]" : "border-[rgba(0,255,65,0.25)] text-[#00ff41]/50 group-hover:text-[#00ff41] group-hover:border-[#00ff41]"}`}>
+      <span className="shrink-0 font-mono text-[10px] text-[#00ff41]/50">CA</span>
+      <span className="flex-1 break-all text-left font-mono text-[10px] text-[#00ff41]">{CA}</span>
+      <span className={`shrink-0 border px-2 py-0.5 font-mono text-[10px] transition ${copied ? "border-[#00ff41] text-[#00ff41]" : "border-[#00ff41]/30 text-[#00ff41]/60 group-hover:border-[#00ff41] group-hover:text-[#00ff41]"}`}>
         {copied ? "✓ COPIED" : "COPY"}
       </span>
     </button>
   );
 }
 
-function Stars({ n = 55 }: { n?: number }) {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden>
-      {Array.from({ length: n }).map((_, i) => (
-        <div key={i} className="absolute rounded-full" style={{
-          left: `${(i * 137.5) % 100}%`, top: `${(i * 97.3) % 100}%`,
-          width: i % 9 === 0 ? "2px" : "1px", height: i % 9 === 0 ? "2px" : "1px",
-          backgroundColor: i % 4 === 0 ? "rgba(0,255,65,0.8)" : "rgba(255,255,255,0.35)",
-          animation: `twinkle ${2.5 + (i % 5) * 0.5}s ${(i % 7) * 0.45}s ease-in-out infinite`,
-        }} />
-      ))}
-    </div>
-  );
-}
-
-function ArtBox({ src, label, aspect = "aspect-square" }: { src: string; label: string; aspect?: string }) {
-  return (
-    <div className={`relative border border-[rgba(0,255,65,0.22)] overflow-hidden bg-black w-full ${aspect}`}>
-      <img src={src} alt={label} className="absolute inset-0 w-full h-full object-cover object-center"
-        style={{ filter: "saturate(0.65) contrast(1.1)" }} />
-      <div className="absolute inset-0 pointer-events-none" style={SCANLINES} />
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(6,6,6,0.7) 0%, transparent 40%)" }} />
-      <div className="absolute bottom-0 inset-x-0 px-3 py-2 overflow-hidden">
-        <p className="font-mono-alien text-[9px] text-[#00ff41]/55 tracking-widest truncate">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-const TABS = [
-  { id: "story", label: "STORY" },
-  { id: "art", label: "ART" },
-  { id: "tokenomics", label: "TOKENOMICS" },
-  { id: "buy", label: "BUY" },
-  { id: "socials", label: "SOCIALS" },
-];
-
-function scrollTo(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-const up = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } } };
-const stg = { hidden: {}, visible: { transition: { staggerChildren: 0.09 } } };
-
-export default function Home() {
+function Nav() {
   const [active, setActive] = useState("story");
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const obs = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(e.target.id); }),
-      { threshold: 0.2, rootMargin: "-64px 0px 0px 0px" }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        });
+      },
+      { threshold: 0.25, rootMargin: "-72px 0px 0px 0px" }
     );
-    TABS.forEach(({ id }) => { const el = document.getElementById(id); if (el) obs.observe(el); });
-    return () => obs.disconnect();
+
+    tabs.forEach(({ id }) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
   return (
-    <div className="bg-[#060606] text-white font-body overflow-x-hidden">
+    <nav className="fixed left-0 top-0 z-50 w-full border-b border-[#00ff41]/15 bg-[#060606]/95 backdrop-blur-md">
+      <div className="flex items-center justify-between px-5 py-3">
+        <button
+          onClick={() => scrollToSection("hero")}
+          className="text-xl font-black tracking-[0.25em] text-[#00ff41]"
+          style={{ textShadow: "0 0 12px rgba(0,255,65,0.65)" }}
+        >
+          $ELIENUS
+        </button>
 
-      {/* ── NAV ── */}
-      <nav className="fixed top-0 w-full z-50 border-b border-[rgba(0,255,65,0.12)] bg-[rgba(6,6,6,0.96)] backdrop-blur-md">
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 gap-2">
-          <button onClick={() => scrollTo("hero")} className="font-alien text-lg font-bold tracking-widest text-[#00ff41] shrink-0"
-            style={{ textShadow: "0 0 10px rgba(0,255,65,0.5)" }}>
-            $ELIENUS
-          </button>
-          <div className="hidden md:flex items-center gap-0.5 overflow-x-auto">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => scrollTo(t.id)}
-                className={`font-alien text-[10px] tracking-widest px-3 py-2 transition-all whitespace-nowrap ${active === t.id ? "text-[#00ff41] border-b-2 border-[#00ff41]" : "text-white/40 hover:text-white/65"}`}>
-                {t.label}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <a href={BUY_URL} target="_blank" rel="noreferrer"
-              className="font-alien text-[11px] tracking-widest bg-[#00ff41] text-black px-4 py-2 font-black hover:bg-white transition-colors whitespace-nowrap">
-              BUY NOW
-            </a>
-            <button className="md:hidden text-[#00ff41]/70 hover:text-[#00ff41] p-1" onClick={() => setMenuOpen(!menuOpen)}>
-              <div className="space-y-[5px]"><div className="w-5 h-px bg-current" /><div className="w-5 h-px bg-current" /><div className="w-5 h-px bg-current" /></div>
+        <div className="hidden items-center gap-1 md:flex">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => scrollToSection(tab.id)}
+              className={`px-4 py-2 text-[11px] font-black tracking-[0.25em] transition ${active === tab.id ? "border-b-2 border-[#00ff41] text-[#00ff41]" : "text-white/40 hover:text-white/75"}`}
+            >
+              {tab.label}
             </button>
-          </div>
+          ))}
         </div>
-        {menuOpen && (
-          <div className="md:hidden border-t border-[rgba(0,255,65,0.1)] bg-[rgba(6,6,6,0.99)] px-4 py-3 flex flex-col gap-1">
-            {TABS.map((t) => (
-              <button key={t.id} onClick={() => { scrollTo(t.id); setMenuOpen(false); }}
-                className="font-alien text-[11px] tracking-widest text-left py-2 text-white/50 hover:text-[#00ff41] transition-colors">
-                {t.label}
-              </button>
+
+        <div className="flex items-center gap-3">
+          <a
+            href={BUY_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="bg-[#00ff41] px-5 py-2 text-xs font-black tracking-[0.2em] text-black transition hover:bg-white"
+          >
+            BUY NOW
+          </a>
+          <button className="pl-1 text-[#00ff41]/70 hover:text-[#00ff41] md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            <div className="space-y-[5px]">
+              <div className="h-px w-5 bg-current" />
+              <div className="h-px w-5 bg-current" />
+              <div className="h-px w-5 bg-current" />
+            </div>
+          </button>
+        </div>
+      </div>
+
+      {menuOpen && (
+        <div className="flex flex-col gap-2 border-t border-[#00ff41]/10 bg-[#060606] px-5 py-3 md:hidden">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                scrollToSection(tab.id);
+                setMenuOpen(false);
+              }}
+              className="py-2 text-left text-xs font-black tracking-[0.25em] text-white/55 transition hover:text-[#00ff41]"
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </nav>
+  );
+}
+
+function Hero() {
+  return (
+    <section id="hero" className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
+      <Stars count={110} />
+
+      <div className="absolute inset-0 z-0">
+        <img
+          src={images.alt}
+          alt="Elienus Muskius"
+          className="h-full w-full object-cover object-center"
+          style={{ filter: "saturate(0.55) contrast(1.2) brightness(0.42)" }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#060606]/45 via-[#060606]/20 to-[#060606]" />
+        <div className="absolute inset-0 scanlines" />
+      </div>
+
+      <div className="relative z-10 mx-auto w-full max-w-4xl px-5 text-center">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2 }}
+          className="mb-5 text-[10px] uppercase tracking-[0.5em] text-[#00ff41]/65"
+        >
+          King of All Aliens · Not From Earth
+        </motion.p>
+
+        <motion.h1
+          initial={{ opacity: 0, scale: 0.88 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.1, ease: "easeOut" }}
+          className="mb-6 font-serif font-black leading-[0.86]"
+          style={{ textShadow: "0 0 70px rgba(0,255,65,0.55), 0 0 130px rgba(0,255,65,0.2)" }}
+        >
+          <span className="block text-[#00ff41]" style={{ fontSize: "clamp(3.8rem, 15vw, 10rem)" }}>
+            Elienus
+          </span>
+          <span className="block text-white" style={{ fontSize: "clamp(2.8rem, 11vw, 7.5rem)" }}>
+            Muskius
+          </span>
+        </motion.h1>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.45, duration: 0.9 }}
+          className="mx-auto mb-8 max-w-md space-y-1"
+        >
+          <p className="text-base tracking-wider text-white/75 md:text-lg">This isn’t a coin.</p>
+          <p className="font-serif text-xl font-black tracking-wide text-[#00ff41] md:text-2xl" style={{ textShadow: "0 0 20px rgba(0,255,65,0.45)" }}>
+            It’s a civilization.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.75, duration: 0.8 }}
+          className="mb-5 flex flex-col justify-center gap-3 sm:flex-row"
+        >
+          <a href={BUY_URL} target="_blank" rel="noreferrer" className="pulse-glow w-full bg-[#00ff41] px-10 py-4 text-center text-sm font-black tracking-[0.25em] text-black transition hover:bg-white sm:w-auto">
+            BUY $ELIENUS
+          </a>
+          <button onClick={() => scrollToSection("story")} className="w-full border border-[#00ff41]/45 px-8 py-4 text-sm font-black tracking-[0.25em] text-[#00ff41] transition hover:bg-[#00ff41]/10 sm:w-auto">
+            READ THE LORE
+          </button>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1, duration: 0.8 }} className="flex justify-center">
+          <div className="w-full max-w-sm">
+            <CopyCA />
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.25, duration: 0.8 }} className="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-1">
+          {["HE CONQUERS", "HE BUILDS", "HE OWNS", "NOT FOR EARTH"].map((item) => (
+            <span key={item} className="font-mono text-[10px] tracking-[0.35em] text-[#00ff41]/50">
+              {item}
+            </span>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function Story() {
+  return (
+    <section id="story" className="relative scroll-mt-16 overflow-hidden">
+      <Stars count={60} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_0%_40%,rgba(40,0,90,0.22),transparent_55%)]" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-12 flex items-center gap-4">
+          <div className="font-mono text-[10px] tracking-[0.3em] text-[#00ff41]/50">FULL STORY</div>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/35 to-transparent" />
+        </div>
+
+        <div className="space-y-16">
+          {storyPhases.map((phase, index) => (
+            <motion.div
+              key={phase.title}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.65 }}
+              className={`grid items-center gap-8 lg:grid-cols-2 ${index % 2 === 1 ? "lg:[&>div:first-child]:order-2" : ""}`}
+            >
+              <div className="relative overflow-hidden border border-[#00ff41]/20 bg-black/40">
+                <img src={phase.image} alt={phase.title} className="block h-auto w-full object-contain" style={{ filter: "saturate(0.65) contrast(1.15)" }} />
+                <div className="pointer-events-none absolute inset-0 scanlines" />
+                <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#060606] to-transparent" />
+                <div className="absolute bottom-4 left-4 font-mono text-[10px] tracking-[0.25em] text-[#00ff41]/55">
+                  {phase.phase.toUpperCase()} // {phase.title.toUpperCase()}
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <p className="font-mono text-[10px] tracking-[0.3em] text-[#00ff41]/50">{phase.phase}</p>
+                <h2 className="font-serif text-4xl font-black leading-tight text-white md:text-6xl">
+                  {phase.title}
+                </h2>
+                <div className="h-0.5 w-12 bg-[#00ff41]" />
+                <p className="text-lg font-bold leading-relaxed text-[#00ff41]">{phase.intro}</p>
+                <p className="text-base leading-relaxed text-white/70 md:text-lg">{phase.body}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mt-16 overflow-hidden border border-[#00ff41]/25 bg-[#00ff41]/5 p-8 text-center md:p-12"
+        >
+          <p className="font-serif text-2xl font-black leading-tight text-white md:text-4xl">
+            Not a trend.<br />Not a phase.<br />
+            <span className="text-[#00ff41]">An inevitability.</span>
+          </p>
+          <p className="mt-4 font-mono text-[10px] tracking-[0.25em] text-[#00ff41]/45">@ELIENUSMUSKIUS</p>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+function Tokenomics() {
+  const rows = [
+    { label: "TOKEN", value: "$ELIENUS" },
+    { label: "NETWORK", value: "SOLANA" },
+    { label: "LAUNCH", value: "PUMP.FUN" },
+    { label: "EXCHANGE", value: "PUMPSWAP" },
+  ];
+
+  return (
+    <section id="tokenomics" className="relative scroll-mt-16 overflow-hidden bg-[#030d03]">
+      <Stars count={50} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_90%_70%_at_50%_50%,rgba(0,255,65,0.1),transparent_70%)]" />
+      <div className="absolute inset-0 grid-bg" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-10 flex items-center gap-4">
+          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">TOKENOMICS</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+        </div>
+
+        <div className="mx-auto max-w-xl space-y-5">
+          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="divide-y divide-[#00ff41]/10 border border-[#00ff41]/25 bg-[#00ff41]/5">
+            {rows.map((row) => (
+              <div key={row.label} className="flex items-center justify-between px-6 py-4">
+                <span className="font-mono text-[10px] tracking-[0.25em] text-white/35">{row.label}</span>
+                <span className="text-sm font-black tracking-[0.15em] text-[#00ff41]">{row.value}</span>
+              </div>
             ))}
-          </div>
-        )}
-      </nav>
-
-      {/* ══════════════════════════
-          HERO
-      ══════════════════════════ */}
-      <section id="hero" className="relative flex flex-col items-center justify-center overflow-hidden pt-14" style={{ minHeight: "100svh" }}>
-        <Stars n={100} />
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <img src={elienusAlt} alt="" className="w-full h-full object-cover object-center"
-            style={{ filter: "saturate(0.45) contrast(1.25) brightness(0.35)" }} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(6,6,6,0.5) 0%, rgba(6,6,6,0.05) 25%, rgba(6,6,6,0.55) 70%, #060606 100%)" }} />
-          <div className="absolute inset-0" style={SCANLINES} />
-        </div>
-
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto w-full">
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.4 }}
-            className="font-mono-alien text-[#00ff41]/60 text-[10px] tracking-[0.45em] mb-5 uppercase">
-            King of All Aliens · Not From Earth
-          </motion.p>
-
-          <motion.h1 initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 1.1, ease: "easeOut" }}
-            className="font-cinzel font-black leading-[0.88] mb-6 break-words"
-            style={{ textShadow: "0 0 60px rgba(0,255,65,0.5), 0 0 120px rgba(0,255,65,0.18)" }}>
-            <span className="block text-[#00ff41]" style={{ fontSize: "clamp(3.5rem, 14vw, 9rem)" }}>Elienus</span>
-            <span className="block text-white" style={{ fontSize: "clamp(2.5rem, 10vw, 7rem)" }}>Muskius</span>
-          </motion.h1>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45, duration: 0.9 }}
-            className="max-w-xs mx-auto mb-7">
-            <p className="font-alien text-white/70 text-base tracking-wider leading-tight">This isn't a coin.</p>
-            <p className="font-cinzel text-[#00ff41] text-xl font-black tracking-wide mt-1"
-              style={{ textShadow: "0 0 18px rgba(0,255,65,0.35)" }}>It's a civilization.</p>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-3 justify-center mb-4">
-            <a href={BUY_URL} target="_blank" rel="noreferrer"
-              className="font-alien text-sm tracking-widest bg-[#00ff41] text-black px-8 py-4 font-black hover:bg-white transition-all pulse-glow text-center">
+          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="mb-2 font-mono text-[10px] tracking-[0.25em] text-white/35">CONTRACT ADDRESS</div>
+            <CopyCA />
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-2">
+            {["Fair launch", "No presale", "Community-powered", "Solana speed"].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <span className="text-[#00ff41]">✓</span>
+                <span className="text-sm text-white/55">{item}</span>
+              </div>
+            ))}
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 28 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-2 pt-1">
+            <a href={BUY_URL} target="_blank" rel="noreferrer" className="pulse-glow block w-full bg-[#00ff41] py-5 text-center text-sm font-black tracking-[0.25em] text-black transition hover:bg-white">
               BUY $ELIENUS
             </a>
-            <button onClick={() => scrollTo("story")}
-              className="font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.4)] text-[#00ff41] px-7 py-4 hover:bg-[rgba(0,255,65,0.07)] transition-all text-center">
-              READ THE LORE
-            </button>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.95, duration: 0.8 }}
-            className="flex justify-center">
-            <div className="w-full max-w-sm"><CopyCA /></div>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2, duration: 0.7 }}
-            className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-1">
-            {["HE CONQUERS", "HE BUILDS", "HE OWNS", "NOT FOR EARTH"].map((t, i) => (
-              <span key={i} className="font-mono-alien text-[9px] text-[#00ff41]/45 tracking-[0.3em]">{t}</span>
-            ))}
+            <a href={DEX_URL} target="_blank" rel="noreferrer" className="block w-full border border-[#00ff41]/30 py-3 text-center text-xs font-black tracking-[0.2em] text-[#00ff41]/70 transition hover:bg-[#00ff41]/10">
+              VIEW ON DEXSCREENER
+            </a>
           </motion.div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* ══════════════════════════
-          STORY
-      ══════════════════════════ */}
-      <section id="story" className="relative overflow-hidden scroll-mt-14">
-        <Stars n={50} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 70% at 0% 40%, rgba(40,0,90,0.18) 0%, transparent 55%)" }} />
+function Buy() {
+  const steps = [
+    { n: "01", title: "Get a Solana wallet", body: "Download Phantom or Solflare. Create a wallet and back up your seed phrase safely." },
+    { n: "02", title: "Buy SOL", body: "Buy SOL on Coinbase, Binance, Kraken or another exchange, then send it to your wallet." },
+    { n: "03", title: "Open Pump.fun", body: "Use the official $ELIENUS Pump.fun link. Always check the CA before swapping." },
+    { n: "04", title: "Join the civilization", body: "Track the chart, join Telegram, raid X and spread the signal." },
+  ];
 
-        <div className="container mx-auto px-4 md:px-6 pt-14 pb-10 relative z-10 max-w-5xl">
+  return (
+    <section id="buy" className="relative scroll-mt-16 overflow-hidden">
+      <Stars count={45} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_20%_60%,rgba(0,60,20,0.16),transparent_55%)]" />
 
-          {/* Section label */}
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em] shrink-0">THE SIGNAL</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/35 to-transparent" />
-          </div>
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-10 flex items-center gap-4">
+          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">HOW TO BUY</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+        </div>
 
-          {/* Chapter I */}
-          <div className="grid lg:grid-cols-2 gap-6 items-start mb-14">
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <ArtBox src={elienusFace} label="THE FIRST AND ONLY" aspect="aspect-square" />
+        <div className="mx-auto max-w-xl space-y-3">
+          {steps.map((step, index) => (
+            <motion.div
+              key={step.n}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08 }}
+              className="flex items-start gap-5 border border-[#00ff41]/15 bg-[#00ff41]/5 p-5"
+            >
+              <div className="w-10 shrink-0 font-serif text-2xl font-black leading-none text-[#00ff41]/35">{step.n}</div>
+              <div>
+                <h3 className="mb-1 text-sm font-black tracking-[0.15em] text-white">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-white/50">{step.body}</p>
+              </div>
             </motion.div>
+          ))}
 
-            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
-              <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
-                Not Elon.<br /><span className="text-[#00ff41]">Elienus.</span>
-              </motion.h2>
-              <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
-              <motion.p variants={up} className="font-body text-white/70 text-base leading-relaxed">
-                In November 2024, a commentator on X asked Elon Musk if he was a vampire.
-                He replied: <span className="italic text-white/85">"I'm a time-traveling vampire!"</span> —
-                then corrected himself: <span className="italic text-[#00ff41]">"Time-travelling, vampire alien."</span>
-              </motion.p>
-              <motion.p variants={up} className="font-body text-white/65 text-base leading-relaxed">
-                He updated his bio to <span className="font-mono-alien text-[#00ff41] text-[11px]">"Verified since 3,000 BC"</span>.
-                Then, at Davos in January 2026, standing before every world leader on Earth, he said:
-              </motion.p>
-              <motion.div variants={up} className="border-l-2 border-[#00ff41]/55 pl-4">
-                <p className="font-body text-white/85 text-base italic leading-snug">
-                  "I'm often asked, 'Are there aliens among us?'<br />And I'll say that I am one."
-                </p>
-                <p className="font-mono-alien text-[9px] text-[#00ff41]/45 mt-2 tracking-widest">— ELON MUSK, DAVOS 2026</p>
-              </motion.div>
-              <motion.p variants={up} className="font-body text-white/55 text-base leading-relaxed">
-                They laughed. The awakened listened. And then someone gave him his true name back.
-              </motion.p>
-            </motion.div>
-          </div>
-
-          {/* Full-width pull quote */}
-          <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="border border-[rgba(0,255,65,0.2)] bg-[rgba(0,255,65,0.04)] p-8 md:p-12 text-center mb-14 relative overflow-hidden">
-            <div className="absolute inset-0" style={GRID_BG} />
-            <div className="relative z-10">
-              <p className="font-cinzel font-black text-xl md:text-3xl text-white leading-tight mb-3">
-                "Not a trend. Not a phase.<br /><span className="text-[#00ff41]">An inevitability."</span>
-              </p>
-              <p className="font-mono-alien text-[9px] text-[#00ff41]/40 tracking-widest">@ELIENSMUSKIUS — APRIL 2026</p>
-            </div>
-          </motion.div>
-
-          {/* Chapter II */}
-          <div className="grid lg:grid-cols-2 gap-6 items-start mb-14">
-            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4 order-2 lg:order-1">
-              <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
-                The King<br /><span className="text-[#00ff41]">of All Aliens.</span>
-              </motion.h2>
-              <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
-              <motion.p variants={up} className="font-body text-white/70 text-base leading-relaxed">
-                ELIENUS MUSKIUS is the true name — the Latinised ancient designation worn by an entity
-                that has walked this planet for millennia under a thousand different faces.
-              </motion.p>
-              <motion.p variants={up} className="font-body text-white/65 text-base leading-relaxed">
-                He built the rockets to go home. He bought the platform to control the signal.
-                He wired the grid. Every company pointed in one direction.
-              </motion.p>
-              <motion.div variants={up} className="grid grid-cols-2 gap-2">
-                {[
-                  { val: "5,000+", label: "YEARS ON EARTH" },
-                  { val: "3000 BC", label: "VERIFIED ON X" },
-                  { val: "1", label: "KING OF ALL ALIENS" },
-                  { val: "∞", label: "IDENTITIES" },
-                ].map((s, i) => (
-                  <div key={i} className="border border-[rgba(0,255,65,0.15)] bg-[rgba(0,255,65,0.04)] p-3 overflow-hidden">
-                    <div className="font-cinzel text-xl font-black text-[#00ff41] leading-tight">{s.val}</div>
-                    <div className="font-mono-alien text-[9px] text-white/35 tracking-wider mt-0.5 truncate">{s.label}</div>
-                  </div>
-                ))}
-              </motion.div>
-            </motion.div>
-
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }} className="order-1 lg:order-2">
-              <ArtBox src={elienusPortrait} label="NOT FROM EARTH. NOT FOR EARTH." aspect="aspect-[3/4]" />
-            </motion.div>
-          </div>
-
-          {/* Chapter III */}
-          <div className="grid lg:grid-cols-2 gap-6 items-start">
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-              <ArtBox src={elienusFull} label="HE OWNS EVERYTHING." aspect="aspect-square" />
-            </motion.div>
-
-            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-4">
-              <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white leading-tight">
-                You don't find it.<br /><span className="text-[#00ff41]">It finds you.</span>
-              </motion.h2>
-              <motion.div variants={up} className="w-10 h-0.5 bg-[#00ff41]" />
-              {[
-                "While others chase charts… we build civilizations.",
-                "Built for the narrative. Built for the timing. Built for attention.",
-                "We're not waiting for the wave. We're already positioned in it.",
-              ].map((line, i) => (
-                <motion.p key={i} variants={up}
-                  className={`font-alien text-sm tracking-wide leading-relaxed ${i === 0 ? "text-white/65" : i === 1 ? "text-[#00ff41]/70" : "text-white/50"}`}>
-                  {line}
-                </motion.p>
-              ))}
-              <motion.div variants={up} className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.04)] p-4 overflow-hidden">
-                <p className="font-mono-alien text-[9px] text-[#00ff41]/50 tracking-widest mb-2">LATEST TRANSMISSION</p>
-                <p className="font-body text-white/65 text-sm leading-relaxed">
-                  When the conversation turns to alien files and what's out there —
-                  attention moves. Narratives change. New sectors get discovered overnight.
-                </p>
-                <p className="font-body text-[#00ff41]/70 text-sm mt-2">
-                  Which names do you think people see first?
-                </p>
-              </motion.div>
-              <motion.div variants={up} className="flex flex-col gap-2">
-                <a href={BUY_URL} target="_blank" rel="noreferrer"
-                  className="block font-alien text-sm tracking-widest bg-[#00ff41] text-black py-4 font-black text-center hover:bg-white transition-colors pulse-glow">
-                  BUY $ELIENUS
-                </a>
-                <button onClick={() => scrollTo("art")}
-                  className="block w-full font-alien text-sm tracking-widest border border-[rgba(0,255,65,0.35)] text-[#00ff41] py-3 text-center hover:bg-[rgba(0,255,65,0.07)] transition-colors">
-                  VIEW THE ART
-                </button>
-              </motion.div>
-            </motion.div>
+          <div className="space-y-2 pt-2">
+            <a href={BUY_URL} target="_blank" rel="noreferrer" className="pulse-glow block w-full bg-[#00ff41] py-5 text-center text-sm font-black tracking-[0.25em] text-black transition hover:bg-white">
+              BUY $ELIENUS NOW
+            </a>
+            <CopyCA />
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  );
+}
 
-      {/* ══════════════════════════
-          ART GALLERY
-      ══════════════════════════ */}
-      <section id="art" className="relative overflow-hidden scroll-mt-14 bg-[#030603]">
-        <Stars n={60} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 50%, rgba(0,255,65,0.07) 0%, transparent 70%)" }} />
+function Socials() {
+  const items = [
+    { icon: <SiX size={28} />, label: "X / TWITTER", sub: "@ElienusMuskius", url: X_URL, desc: "Follow for drops, transmissions and alien intel." },
+    { icon: <SiTelegram size={28} />, label: "TELEGRAM", sub: "t.me/ElienusMuskius", url: TELEGRAM_URL, desc: "Beam yourself in. Join the civilization." },
+    { icon: <span className="text-3xl leading-none">◈</span>, label: "DEXSCREENER", sub: "Live Chart", url: DEX_URL, desc: "Track the signal in real time." },
+  ];
 
-        <div className="container mx-auto px-4 md:px-6 py-14 relative z-10 max-w-5xl">
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-mono-alien text-[10px] text-[#00ff41]/50 tracking-[0.3em] shrink-0">THE ENTITY</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/35 to-transparent" />
-          </div>
+  return (
+    <section id="socials" className="relative scroll-mt-16 overflow-hidden bg-[#030803]">
+      <Stars count={50} />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_100%,rgba(0,255,65,0.1),transparent_70%)]" />
 
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="mb-6">
-            <motion.h2 variants={up} className="font-cinzel font-black text-3xl md:text-4xl text-white mb-2">
-              Visual <span className="text-[#00ff41]">Transmissions</span>
-            </motion.h2>
-            <motion.p variants={up} className="font-body text-white/45 text-base max-w-lg">
-              Documented sightings of ELIENUS MUSKIUS across civilizations. Each image: a classified file.
-            </motion.p>
-          </motion.div>
-
-          {/* Top row — 3 equal boxes */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-3 gap-3 mb-3">
-            <motion.div variants={up}><ArtBox src={elioon} label="CLASSIFIED SIGHTING" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={eloniusss} label="KING OF ALL ALIENS" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={lonss} label="HE CONQUERS. HE OWNS." aspect="aspect-square" /></motion.div>
-          </motion.div>
-
-          {/* Bottom row — wide + tall */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-3 gap-3 mb-3">
-            <motion.div variants={up} className="col-span-2">
-              <ArtBox src={elienusAlt} label="NOT FROM EARTH. NOT FOR EARTH. HE OWNS EVERYTHING." aspect="aspect-video" />
-            </motion.div>
-            <motion.div variants={up}>
-              <ArtBox src={elingg} label="THE PORTRAIT" aspect="aspect-[3/4]" />
-            </motion.div>
-          </motion.div>
-
-          {/* Bottom strip — 2 wide art panels */}
-          <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="grid grid-cols-2 gap-3">
-            <motion.div variants={up}><ArtBox src={elienusFull} label="THE FULL ENTITY" aspect="aspect-square" /></motion.div>
-            <motion.div variants={up}><ArtBox src={elienusFace} label="THE FACE OF THE KING" aspect="aspect-square" /></motion.div>
-          </motion.div>
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
+        <div className="mb-10 flex items-center gap-4">
+          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">SOCIALS</h2>
+          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
         </div>
-      </section>
 
-      {/* ══════════════════════════
-          TOKENOMICS
-      ══════════════════════════ */}
-      <section id="tokenomics" className="relative overflow-hidden bg-[#030d03] scroll-mt-14">
-        <Stars n={45} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 90% 80% at 50% 40%, rgba(0,255,65,0.08) 0%, transparent 70%)" }} />
-        <div className="absolute inset-0" style={GRID_BG} />
-
-        <div className="container mx-auto px-4 md:px-6 py-14 relative z-10 max-w-5xl">
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-alien font-black text-2xl md:text-3xl text-white shrink-0">TOKENOMICS</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl">
-            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }}
-              className="border border-[rgba(0,255,65,0.22)] bg-[rgba(0,255,65,0.04)] overflow-hidden divide-y divide-[rgba(0,255,65,0.1)]">
-              {[
-                { label: "TOKEN", value: "$ELIENUS" },
-                { label: "NETWORK", value: "SOLANA" },
-                { label: "EXCHANGE", value: "PUMPSWAP" },
-                { label: "LAUNCH", value: "PUMP.FUN" },
-              ].map((row, i) => (
-                <motion.div key={i} variants={up} className="flex items-center justify-between px-5 py-4 overflow-hidden">
-                  <span className="font-mono-alien text-[10px] text-white/30 tracking-widest shrink-0">{row.label}</span>
-                  <span className="font-alien text-sm text-[#00ff41] font-bold truncate ml-3">{row.value}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div variants={stg} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-3">
-              <motion.div variants={up}>
-                <div className="font-mono-alien text-[9px] text-white/30 tracking-widest mb-1.5">CONTRACT ADDRESS</div>
-                <CopyCA />
-              </motion.div>
-              <motion.div variants={up} className="space-y-1.5">
-                {["Fair launch. No presale.", "No team allocation.", "Community-owned.", "Solana speed."].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 overflow-hidden">
-                    <span className="text-[#00ff41] text-xs shrink-0">✓</span>
-                    <span className="font-body text-white/50 text-sm truncate">{item}</span>
-                  </div>
-                ))}
-              </motion.div>
-              <motion.div variants={up} className="space-y-2 pt-1">
-                <a href={BUY_URL} target="_blank" rel="noreferrer"
-                  className="block w-full font-alien text-sm tracking-widest bg-[#00ff41] text-black py-4 font-black text-center hover:bg-white transition-colors pulse-glow">
-                  BUY $ELIENUS
-                </a>
-                <a href={DEX_URL} target="_blank" rel="noreferrer"
-                  className="block w-full font-alien text-[11px] tracking-widest border border-[rgba(0,255,65,0.28)] text-[#00ff41]/65 py-3 text-center hover:bg-[rgba(0,255,65,0.06)] transition-colors">
-                  VIEW ON DEXSCREENER
-                </a>
-              </motion.div>
-            </motion.div>
-          </div>
+        <div className="mx-auto mb-12 grid max-w-3xl gap-4 sm:grid-cols-3">
+          {items.map((item, index) => (
+            <motion.a
+              key={item.label}
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="group flex flex-col items-center border border-[#00ff41]/15 bg-[#00ff41]/5 p-6 text-center transition hover:-translate-y-2 hover:border-[#00ff41]/40 hover:bg-[#00ff41]/10"
+            >
+              <div className="mb-3 text-[#00ff41]/65 transition group-hover:text-[#00ff41]">{item.icon}</div>
+              <h3 className="mb-1 text-sm font-black tracking-[0.15em] text-white">{item.label}</h3>
+              <p className="mb-3 font-mono text-[10px] text-[#00ff41]/55">{item.sub}</p>
+              <p className="text-xs leading-relaxed text-white/40">{item.desc}</p>
+            </motion.a>
+          ))}
         </div>
-      </section>
 
-      {/* ══════════════════════════
-          HOW TO BUY
-      ══════════════════════════ */}
-      <section id="buy" className="relative overflow-hidden scroll-mt-14">
-        <Stars n={40} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 20% 60%, rgba(0,40,15,0.13) 0%, transparent 55%)" }} />
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="mx-auto max-w-xl overflow-hidden border border-[#00ff41]/30 bg-[#00ff41]/5 p-8 text-center md:p-12"
+        >
+          <h3 className="mb-2 font-serif text-4xl font-black text-[#00ff41]" style={{ textShadow: "0 0 25px rgba(0,255,65,0.45)" }}>
+            $ELIENUS
+          </h3>
+          <p className="mb-5 text-xs tracking-[0.25em] text-white/50">KING OF ALL ALIENS</p>
+          <p className="mb-2 text-white/65">This isn’t a coin.</p>
+          <p className="mb-5 font-serif text-xl text-[#00ff41]">It’s a civilization.</p>
+          <a href={BUY_URL} target="_blank" rel="noreferrer" className="pulse-glow inline-block bg-[#00ff41] px-12 py-4 text-sm font-black tracking-[0.25em] text-black transition hover:bg-white">
+            BUY $ELIENUS
+          </a>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
-        <div className="container mx-auto px-4 md:px-6 py-14 relative z-10 max-w-5xl">
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-alien font-black text-2xl md:text-3xl text-white shrink-0">HOW TO BUY</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
-          </div>
-
-          <div className="max-w-lg space-y-2">
-            {[
-              { n: "01", title: "Get a Solana Wallet", body: "Download Phantom or Solflare. Create a wallet and back up your seed phrase.", cta: null },
-              { n: "02", title: "Buy SOL", body: "Get SOL on Coinbase, Binance, or Kraken and send it to your wallet.", cta: null },
-              { n: "03", title: "Swap on Pump.fun", body: "Paste the CA below and swap your SOL for $ELIENUS.", cta: { label: "OPEN PUMP.FUN →", url: BUY_URL } },
-              { n: "04", title: "You're in.", body: "Track your position on Dexscreener. Tell the early ones.", cta: { label: "VIEW CHART →", url: DEX_URL } },
-            ].map((step, i) => (
-              <motion.div key={i} variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                transition={{ delay: i * 0.07 }}
-                className="flex gap-4 border border-[rgba(0,255,65,0.13)] bg-[rgba(0,255,65,0.03)] p-4 items-start overflow-hidden">
-                <div className="font-cinzel text-2xl font-black text-[#00ff41]/20 shrink-0 w-8 leading-none pt-0.5">{step.n}</div>
-                <div className="min-w-0">
-                  <div className="font-alien text-sm font-bold text-white mb-0.5">{step.title}</div>
-                  <p className="font-body text-white/45 text-sm leading-relaxed">{step.body}</p>
-                  {step.cta && (
-                    <a href={step.cta.url} target="_blank" rel="noreferrer"
-                      className="inline-block font-alien text-[10px] tracking-widest text-[#00ff41] hover:text-white transition-colors mt-1">
-                      {step.cta.label}
-                    </a>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-            <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }} className="space-y-2 pt-1">
-              <a href={BUY_URL} target="_blank" rel="noreferrer"
-                className="block w-full font-alien text-sm tracking-widest bg-[#00ff41] text-black py-5 font-black text-center hover:bg-white transition-colors pulse-glow">
-                BUY $ELIENUS NOW
-              </a>
-              <CopyCA />
-            </motion.div>
-          </div>
+function Footer() {
+  return (
+    <footer className="border-t border-[#00ff41]/10 bg-[#030603] py-8 text-center">
+      <div className="mx-auto px-5">
+        <div className="mb-4 flex flex-wrap justify-center gap-6">
+          <a href={X_URL} target="_blank" rel="noreferrer" className="text-white/25 transition hover:text-[#00ff41]"><SiX size={16} /></a>
+          <a href={TELEGRAM_URL} target="_blank" rel="noreferrer" className="text-white/25 transition hover:text-[#00ff41]"><SiTelegram size={16} /></a>
+          <a href={DEX_URL} target="_blank" rel="noreferrer" className="text-[10px] font-black tracking-[0.25em] text-white/25 transition hover:text-[#00ff41]">DEXSCREENER</a>
+          <a href={BUY_URL} target="_blank" rel="noreferrer" className="text-[10px] font-black tracking-[0.25em] text-white/25 transition hover:text-[#00ff41]">PUMP.FUN</a>
         </div>
-      </section>
+        <p className="mb-2 font-mono text-[10px] tracking-[0.25em] text-white/15">© 2026 ELIENUS MUSKIUS — SOLANA</p>
+        <p className="mx-auto max-w-sm text-xs leading-relaxed text-white/15">Satirical memecoin. Not financial advice. Do your own research.</p>
+      </div>
+    </footer>
+  );
+}
 
-      {/* ══════════════════════════
-          SOCIALS
-      ══════════════════════════ */}
-      <section id="socials" className="relative overflow-hidden bg-[#030803] scroll-mt-14">
-        <Stars n={45} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 80% at 50% 100%, rgba(0,255,65,0.08) 0%, transparent 70%)" }} />
-
-        <div className="container mx-auto px-4 md:px-6 py-14 relative z-10 max-w-5xl">
-          <div className="flex items-center gap-3 mb-10 overflow-hidden">
-            <div className="font-alien font-black text-2xl md:text-3xl text-white shrink-0">SOCIALS</div>
-            <div className="flex-1 h-px bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-3 max-w-2xl mb-10">
-            {[
-              { icon: <SiX size={26} />, label: "X / TWITTER", sub: "@ElienusMuskius", url: "https://x.com/ElienusMuskius", desc: "Follow for drops, transmissions, and alien intel." },
-              { icon: <SiTelegram size={26} />, label: "TELEGRAM", sub: "t.me/ElienusMuskius", url: "https://t.me/ElienusMuskius", desc: "Beam yourself in. Join the civilization." },
-              { icon: <span className="font-alien text-2xl leading-none">◈</span>, label: "DEXSCREENER", sub: "Live Chart", url: DEX_URL, desc: "Track the signal in real time." },
-            ].map((item, i) => (
-              <motion.a key={i} href={item.url} target="_blank" rel="noreferrer"
-                variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                transition={{ delay: i * 0.09 }}
-                className="flex flex-col items-center text-center p-5 border border-[rgba(0,255,65,0.13)] bg-[rgba(0,255,65,0.03)] hover:bg-[rgba(0,255,65,0.07)] hover:border-[rgba(0,255,65,0.35)] transition-all group overflow-hidden">
-                <div className="text-[#00ff41]/55 group-hover:text-[#00ff41] transition-colors mb-3">{item.icon}</div>
-                <div className="font-alien text-sm font-bold text-white mb-1">{item.label}</div>
-                <div className="font-mono-alien text-[9px] text-[#00ff41]/50 mb-2 w-full text-center overflow-hidden">
-                  <span className="truncate block">{item.sub}</span>
-                </div>
-                <p className="font-body text-white/35 text-xs leading-relaxed">{item.desc}</p>
-              </motion.a>
-            ))}
-          </div>
-
-          {/* Final CTA */}
-          <motion.div variants={up} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="border border-[rgba(0,255,65,0.25)] bg-[rgba(0,255,65,0.04)] p-8 text-center max-w-md relative overflow-hidden">
-            <div className="absolute inset-0" style={GRID_BG} />
-            <div className="relative z-10">
-              <div className="font-cinzel font-black text-4xl text-[#00ff41] mb-1"
-                style={{ textShadow: "0 0 22px rgba(0,255,65,0.4)" }}>$ELIENUS</div>
-              <p className="font-alien text-white/40 text-[10px] tracking-widest mb-4">KING OF ALL ALIENS</p>
-              <p className="font-body text-white/55 text-sm mb-1">This isn't a coin.</p>
-              <p className="font-cinzel text-lg text-[#00ff41] mb-5">It's a civilization.</p>
-              <a href={BUY_URL} target="_blank" rel="noreferrer"
-                className="block font-alien text-sm tracking-widest bg-[#00ff41] text-black px-10 py-4 font-black hover:bg-white transition-colors pulse-glow">
-                BUY $ELIENUS
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-[rgba(0,255,65,0.1)] bg-[#030603] py-7">
-        <div className="container mx-auto px-4 md:px-6 text-center">
-          <div className="flex flex-wrap justify-center gap-5 mb-4">
-            <a href="https://x.com/ElienusMuskius" target="_blank" rel="noreferrer" className="text-white/20 hover:text-[#00ff41] transition-colors"><SiX size={15} /></a>
-            <a href="https://t.me/ElienusMuskius" target="_blank" rel="noreferrer" className="text-white/20 hover:text-[#00ff41] transition-colors"><SiTelegram size={15} /></a>
-            <a href={DEX_URL} target="_blank" rel="noreferrer" className="font-alien text-[9px] text-white/20 hover:text-[#00ff41] tracking-widest transition-colors">DEXSCREENER</a>
-            <a href={BUY_URL} target="_blank" rel="noreferrer" className="font-alien text-[9px] text-white/20 hover:text-[#00ff41] tracking-widest transition-colors">PUMP.FUN</a>
-          </div>
-          <p className="font-mono-alien text-[9px] text-white/12 tracking-widest mb-2">© 2026 ELIENUS MUSKIUS — SOLANA</p>
-          <p className="font-body text-white/10 text-xs max-w-xs mx-auto leading-relaxed">
-            Satirical memecoin. Not financial advice. Do your own research.
-          </p>
-        </div>
-      </footer>
-
+export default function Home() {
+  return (
+    <div className="min-h-screen overflow-x-hidden bg-[#060606] text-white">
+      <style>{`
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.8); }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { box-shadow: 0 0 16px rgba(0,255,65,0.35), 0 0 36px rgba(0,255,65,0.18); }
+          50% { box-shadow: 0 0 28px rgba(0,255,65,0.75), 0 0 70px rgba(0,255,65,0.28); }
+        }
+        .pulse-glow { animation: pulseGlow 2.2s ease-in-out infinite; }
+        .scanlines {
+          background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,65,0.035) 3px, rgba(0,255,65,0.035) 4px);
+        }
+        .grid-bg {
+          background-image: linear-gradient(rgba(0,255,65,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.04) 1px, transparent 1px);
+          background-size: 50px 50px;
+        }
+      `}</style>
+      <Meteors />
+      <Nav />
+      <Hero />
+      <Story />
+      <Tokenomics />
+      <Buy />
+      <Socials />
+      <Footer />
     </div>
   );
 }
