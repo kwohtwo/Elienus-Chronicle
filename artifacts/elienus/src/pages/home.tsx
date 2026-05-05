@@ -419,9 +419,10 @@ function Tokenomics() {
       }} />
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-16">
-        <div className="mb-10 flex items-center gap-4">
-          <h2 className="text-3xl font-black tracking-[0.18em] text-white md:text-5xl">TOKENOMICS</h2>
-          <div className="h-px flex-1 bg-gradient-to-r from-[#00ff41]/40 to-transparent" />
+        <div className="mb-10 text-center">
+          <h2 className="font-serif text-4xl font-black tracking-[0.15em] text-white md:text-6xl"
+            style={{ textShadow: "0 0 40px rgba(0,255,65,0.25)" }}>TOKENOMICS</h2>
+          <div className="mx-auto mt-4 h-0.5 w-16 bg-[#00ff41]" style={{ boxShadow: "0 0 8px rgba(0,255,65,0.6)" }} />
         </div>
 
         <div className="mx-auto max-w-xl space-y-5">
