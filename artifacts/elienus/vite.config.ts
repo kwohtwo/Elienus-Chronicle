@@ -14,6 +14,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@assets": path.resolve(import.meta.dirname, "src/assets"),
+      "@components": path.resolve(import.meta.dirname, "src/components"),
     },
   },
 });
